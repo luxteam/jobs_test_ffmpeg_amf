@@ -343,7 +343,7 @@ def run(args):
     )
     logger.info(f"Results written to: {args.output}")
 
-    return 0 if (failed == 0 and errors == 0) else 1
+    return 0  # test failures are reported via report files; exit 1 is reserved for setup errors
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,15 @@
+# Local runner config — contains machine-specific paths, never commit
+local_config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Test output (local runs)
+test_output/
+summaryTestResults/
+
+# VS Code / JetBrains
+.vscode/
+.idea/

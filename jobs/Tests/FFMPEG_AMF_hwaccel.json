@@ -1,0 +1,850 @@
+{
+    "cases": [
+
+        {
+            "case": "hwaccel_1",
+            "status": "active",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "DX9/DXVA2 decode - AMF encode",
+                "H.264 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_2",
+            "status": "active",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "DX9/DXVA2 decode - AMF encode",
+                "H.264 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_3",
+            "status": "skipped",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "DX9/DXVA2 decode - AMF encode",
+                "H.264 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_4",
+            "status": "active",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "DX9/DXVA2 decode - AMF encode",
+                "HEVC input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_5",
+            "status": "active",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "DX9/DXVA2 decode - AMF encode",
+                "HEVC input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_6",
+            "status": "skipped",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "DX9/DXVA2 decode - AMF encode",
+                "HEVC input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+
+        {
+            "case": "hwaccel_7",
+            "status": "active",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "H.264 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_8",
+            "status": "active",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "H.264 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_9",
+            "status": "skipped",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "H.264 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_10",
+            "status": "active",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "HEVC input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_11",
+            "status": "active",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "HEVC input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_12",
+            "status": "skipped",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "HEVC input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_13",
+            "status": "skipped",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "AV1 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_14",
+            "status": "skipped",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "AV1 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_15",
+            "status": "skipped",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D11 decode - AMF encode",
+                "AV1 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+
+        {
+            "case": "hwaccel_16",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "H.264 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_17",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "H.264 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_18",
+            "status": "skipped",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "H.264 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_19",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "HEVC input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_20",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "HEVC input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_21",
+            "status": "skipped",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "HEVC input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_22",
+            "status": "skipped",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "AV1 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_23",
+            "status": "skipped",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "AV1 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_24",
+            "status": "skipped",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Native AMF hwaccel decode - AMF encode",
+                "AV1 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+
+        {
+            "case": "hwaccel_25",
+            "status": "active",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "H.264 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_26",
+            "status": "active",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "H.264 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_27",
+            "status": "skipped",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "H.264 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_28",
+            "status": "active",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "HEVC input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_29",
+            "status": "active",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "HEVC input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_30",
+            "status": "skipped",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "HEVC input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_31",
+            "status": "skipped",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "AV1 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_32",
+            "status": "skipped",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "AV1 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_33",
+            "status": "skipped",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "D3D12VA decode - AMF encode",
+                "AV1 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+
+        {
+            "case": "hwaccel_34",
+            "status": "active",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "H.264 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_35",
+            "status": "active",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "H.264 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_36",
+            "status": "skipped",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_h264.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "H.264 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_37",
+            "status": "active",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "HEVC input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_38",
+            "status": "active",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "HEVC input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_39",
+            "status": "skipped",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "HEVC input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_40",
+            "status": "skipped",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "AV1 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_41",
+            "status": "skipped",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "AV1 input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "hwaccel_42",
+            "status": "skipped",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
+            "input_video": "hwaccel_input_av1.mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Vulkan decode/device - AMF encode",
+                "AV1 input",
+                "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+        }
+
+    ]
+}

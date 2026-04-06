@@ -1,0 +1,376 @@
+"""
+Main test runner for FFMPEG AMF tests.
+
+Writes output in jobs_launcher-compatible format:
+  <output>/test_cases.json          - list of all cases with status
+  <output>/<case>_RPR.json          - per-case result (list of one object)
+  <output>/Color/<case>/            - extracted frames for report
+  <output>/report_compare.json      - collected for build_reports.bat
+
+Called directly by run_local.py (local mode) or via Jenkins pipeline (CI mode).
+See run_local.py for local usage; see pipelines/amfdev_ffmpeg_amf.groovy for CI usage.
+
+Each test case in the test pack carries its own "input_video" filename.
+The runner resolves the full path as: video_samples / case["input_video"].
+
+CLI usage (both modes share the same arguments):
+    python run_tests.py
+        --build_path     <path to ffmpeg build directory>
+        --video_samples  <folder containing input video files>
+        --test_pack      <path to test pack JSON file>
+        --output         <output directory>
+        [--test_cases    <comma-separated case names, empty = all>]
+        [--gpu_name      <GPU name string for report>]
+"""
+
+import argparse
+import json
+import logging
+import os
+import re
+import sys
+import traceback
+from datetime import datetime
+
+import ffmpeg_utils as fu
+from rules.rules_processor import RulesProcessor
+
+CASE_REPORT_SUFFIX = "_RPR.json"
+FRAMES_DIR = "Color"
+
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+
+def setup_logging(output_dir, logger_name=__name__):
+    """
+    Configure file + stdout logging.
+    Safe to call multiple times — adds handlers only once per logger name.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    log_path = os.path.join(output_dir, "run_tests.log")
+
+    logger = logging.getLogger(logger_name)
+    if logger.handlers:
+        return logger  # already configured (e.g. called from run_local.py)
+
+    logger.setLevel(logging.INFO)
+    fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+
+    fh = logging.FileHandler(log_path, encoding="utf-8")
+    fh.setFormatter(fmt)
+    logger.addHandler(fh)
+
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setFormatter(fmt)
+    logger.addHandler(sh)
+
+    return logger
+
+
+# ---------------------------------------------------------------------------
+# jobs_launcher-compatible result helpers
+# ---------------------------------------------------------------------------
+
+def make_case_report(case, output_dir, gpu_name, test_group="", render_version=""):
+    """Initial per-case report dict matching jobs_launcher schema."""
+    return {
+        # --- jobs_launcher required fields ---
+        "test_case":                case["case"],
+        "test_group":               test_group,
+        "test_status":              "error",        # overwritten on success/skip
+        "render_device":            gpu_name,
+        "tool":                     "FFmpeg AMF",
+        "render_version":           render_version,
+        "core_version":             "",
+        "render_time":              0.0,
+        "execution_time":           0.0,
+        "sync_time":                0.0,
+        "date_time":                datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+        "number_of_tries":          1,
+        "message":                  [],
+        "group_timeout_exceeded":   False,
+        "testcase_timeout_exceeded": False,
+        "scene_name":               "",             # set to input video filename
+        "render_mode":              "",
+        "file_name":                "",             # set to output video filename
+        "render_color_path":        "",
+        "error_screen_path":        "",
+        "baseline_json_path":       "",
+        "script_info":              case.get("description", []),
+        "screens_path":             os.path.abspath(os.path.join(output_dir, FRAMES_DIR, case["case"])),
+        # --- custom fields (pass through jobs_launcher transparently) ---
+        "psnr":                     None,
+        "ssim":                     None,
+        "metadata":                 {},
+        "ffmpeg_command":           "",
+    }
+
+
+def write_case_report(output_dir, report):
+    path = os.path.join(output_dir, report["test_case"] + CASE_REPORT_SUFFIX)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump([report], f, indent=4)
+
+
+def write_test_cases_json(output_dir, cases):
+    """Write test_cases.json — jobs_launcher needs this for report generation."""
+    path = os.path.join(output_dir, "test_cases.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(cases, f, indent=4)
+
+
+def write_report_compare_json(output_dir, reports):
+    """Collect all case reports into report_compare.json for build_reports.bat."""
+    path = os.path.join(output_dir, "report_compare.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(reports, f, indent=4)
+
+
+def _strip_json_comments(text):
+    """Remove // line comments from JSON-with-comments text."""
+    return re.sub(r"//[^\n]*", "", text)
+
+
+def load_test_pack(path):
+    """
+    Load a test pack JSON file.  Supports // line comments.
+    Returns (cases_list, pack_meta_dict).
+    """
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    data = json.loads(_strip_json_comments(text))
+    if isinstance(data, list):
+        return data, {}
+    cases = data.get("cases", [])
+    meta  = {k: v for k, v in data.items() if k != "cases"}
+    return cases, meta
+
+
+# ---------------------------------------------------------------------------
+# Single test case execution
+# ---------------------------------------------------------------------------
+
+def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
+                    video_samples_dir, default_input_video,
+                    gpu_name, test_group, render_version, logger):
+    case_name = case["case"]
+    case_output_dir = os.path.join(output_dir, case_name)
+    os.makedirs(case_output_dir, exist_ok=True)
+
+    report = make_case_report(case, output_dir, gpu_name, test_group, render_version)
+
+    # ---- 1. Resolve and verify input video ----
+    input_file = case.get("input_video") or default_input_video
+    input_video_path = os.path.join(video_samples_dir, input_file)
+    report["scene_name"] = input_file
+
+    if not os.path.exists(input_video_path):
+        report["test_status"] = "error"
+        report["message"].append({
+            "issue": f"Input video not found: {input_video_path}",
+            "description": "Input video must exist before conversion"
+        })
+        logger.error(f"[{case_name}] Input video not found: {input_video_path}")
+        return report
+
+    # ---- 2. Run FFMPEG conversion ----
+    output_video   = os.path.join(case_output_dir, f"{case_name}_output.mp4")
+    conversion_log = os.path.join(case_output_dir, f"{case_name}_conversion.log")
+
+    cmd = fu.build_conversion_command(ffmpeg_exe, input_video_path, output_video, case)
+    report["ffmpeg_command"] = cmd
+    report["file_name"]      = os.path.basename(output_video)
+    logger.info(f"[{case_name}] Command: {cmd}")
+
+    start_time = datetime.now()
+    returncode = fu.run_conversion(
+        ffmpeg_exe, input_video_path, output_video, case, conversion_log
+    )
+    elapsed = (datetime.now() - start_time).total_seconds()
+
+    report["render_time"]    = elapsed
+    report["execution_time"] = elapsed
+    logger.info(f"[{case_name}] Conversion done in {elapsed:.1f}s, exit={returncode}")
+
+    # ---- 3. Get metadata with ffprobe ----
+    metadata = {}
+    if os.path.exists(output_video):
+        metadata = fu.get_video_metadata(ffprobe_exe, output_video)
+        report["metadata"] = metadata
+
+    psnr_log = os.path.join(case_output_dir, f"{case_name}_psnr.log")
+
+    # ---- 4. Measure PSNR ----
+    psnr = None
+    if os.path.exists(output_video):
+        psnr = fu.measure_psnr(ffmpeg_exe, input_video_path, output_video, psnr_log)
+        report["psnr"] = psnr
+
+    # ---- 5. Measure SSIM ----
+    ssim = None
+    if os.path.exists(output_video):
+        ssim_log = os.path.join(case_output_dir, f"{case_name}_ssim.log")
+        ssim = fu.measure_ssim(ffmpeg_exe, input_video_path, output_video, ssim_log)
+        report["ssim"] = ssim
+
+    # ---- 6. Extract worst frames for visual comparison ----
+    # ffmpeg psnr stats log (written by measure_psnr) is parsed to find worst N
+    # frames; cv2 seeks directly to those indices to save quad images.
+    frames_dir = os.path.join(output_dir, FRAMES_DIR, case_name)
+    if os.path.exists(output_video):
+        try:
+            worst_frames = fu.extract_worst_frames(
+                input_video_path, output_video, frames_dir, count=5, psnr_log=psnr_log
+            )
+            report["worst_frames"] = worst_frames
+        except Exception as e:
+            logger.warning(f"[{case_name}] Frame extraction failed: {e}")
+
+    # ---- 7. Apply rules ----
+    report["test_status"] = "passed"   # rules will downgrade if needed
+    data = {
+        "ffmpeg_returncode": returncode,
+        "metadata":          metadata,
+        "psnr":              psnr,
+        "ssim":              ssim,
+    }
+    processor = RulesProcessor(case, report)
+    processor.process(data)
+
+    logger.info(f"[{case_name}] Final status: {report['test_status']}")
+    return report
+
+
+# ---------------------------------------------------------------------------
+# Core runner — called by both CLI (main) and run_local.py (run)
+# ---------------------------------------------------------------------------
+
+def run(args):
+    """
+    Execute the full test run given a populated args namespace.
+    Returns int exit code (0 = all passed, 1 = failures/errors).
+    Usable directly from run_local.py without spawning a subprocess.
+    """
+    logger = setup_logging(args.output)
+    logger.info("=" * 60)
+    logger.info("FFMPEG AMF Test Runner started")
+    logger.info(f"  Build:          {args.build_path}")
+    logger.info(f"  Video samples:  {args.video_samples}")
+    logger.info(f"  Test pack:      {args.test_pack}")
+    logger.info(f"  Output:         {args.output}")
+    logger.info(f"  GPU:            {args.gpu_name}")
+    logger.info("=" * 60)
+
+    ffmpeg_exe  = fu.get_ffmpeg_path(args.build_path)
+    ffprobe_exe = fu.get_ffprobe_path(args.build_path)
+
+    for exe, name in ((ffmpeg_exe, "ffmpeg.exe"), (ffprobe_exe, "ffprobe.exe")):
+        if not os.path.exists(exe):
+            logger.error(f"{name} not found at: {exe}")
+            return 1
+
+    render_version = fu.get_ffmpeg_version(ffmpeg_exe)
+    test_group     = os.path.splitext(os.path.basename(args.test_pack))[0]
+    logger.info(f"  FFmpeg version: {render_version}")
+    logger.info(f"  Test group:     {test_group}")
+
+    try:
+        cases, pack_meta = load_test_pack(args.test_pack)
+    except Exception as e:
+        logger.error(f"Failed to load test pack: {e}")
+        return 1
+
+    default_input_video = "default_input_video.mp4"
+
+    if getattr(args, "test_cases", ""):
+        selected = {c.strip() for c in args.test_cases.split(",") if c.strip()}
+        cases    = [c for c in cases if c["case"] in selected]
+        logger.info(f"Running selected cases: {sorted(selected)}")
+
+    logger.info(f"Total cases: {len(cases)}")
+
+    all_reports       = []
+    cases_with_status = []
+
+    for case in cases:
+        case_copy = dict(case)
+
+        if case.get("status") == "skipped":
+            logger.info(f"[{case['case']}] Skipped")
+            report = make_case_report(case, args.output, args.gpu_name, test_group, render_version)
+            report["test_status"]            = "skipped"
+            report["group_timeout_exceeded"] = False
+            write_case_report(args.output, report)
+            all_reports.append(report)
+            case_copy["status"] = "skipped"
+            cases_with_status.append(case_copy)
+            continue
+
+        logger.info(f"\n{'─' * 50}\nRunning: {case['case']}")
+        try:
+            report = run_single_case(
+                case, args.output,
+                ffmpeg_exe, ffprobe_exe,
+                args.video_samples, default_input_video,
+                args.gpu_name, test_group, render_version, logger
+            )
+        except Exception as e:
+            logger.error(f"Case {case['case']} crashed: {e}\n{traceback.format_exc()}")
+            report = make_case_report(case, args.output, args.gpu_name, test_group, render_version)
+            report["test_status"] = "error"
+            report["message"].append({
+                "issue":       f"Unexpected crash: {e}",
+                "description": "Unhandled exception in test runner"
+            })
+
+        write_case_report(args.output, report)
+        all_reports.append(report)
+        case_copy["status"] = report["test_status"]
+        cases_with_status.append(case_copy)
+
+    write_test_cases_json(args.output, cases_with_status)
+    write_report_compare_json(args.output, all_reports)
+
+    passed  = sum(1 for r in all_reports if r["test_status"] == "passed")
+    failed  = sum(1 for r in all_reports if r["test_status"] == "failed")
+    errors  = sum(1 for r in all_reports if r["test_status"] == "error")
+    skipped = sum(1 for r in all_reports if r["test_status"] == "skipped")
+    logger.info(
+        f"\nSummary: {passed} passed, {failed} failed, {errors} errors,"
+        f" {skipped} skipped / {len(all_reports)} total"
+    )
+    logger.info(f"Results written to: {args.output}")
+
+    return 0 if (failed == 0 and errors == 0) else 1
+
+
+# ---------------------------------------------------------------------------
+# CLI entry point
+# ---------------------------------------------------------------------------
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="FFMPEG AMF test runner")
+    parser.add_argument("--build_path",     required=True,
+                        help="Path to ffmpeg build directory (ffmpeg.exe + ffprobe.exe)")
+    parser.add_argument("--video_samples",  required=True,
+                        help="Folder containing input video files.")
+    parser.add_argument("--test_pack",   required=True,
+                        help="Path to test pack JSON file")
+    parser.add_argument("--output",      required=True,
+                        help="Output directory for results, logs, frames")
+    parser.add_argument("--test_cases",  default="",
+                        help="Comma-separated case names to run (empty = all)")
+    parser.add_argument("--gpu_name",    default="Unknown GPU",
+                        help="GPU name for report (e.g. 'AMD Radeon RX 7900 XTX')")
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    sys.exit(run(args))
+
+
+if __name__ == "__main__":
+    main()

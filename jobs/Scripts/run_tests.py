@@ -308,7 +308,7 @@ def run(args):
             cases_with_status.append(case_copy)
             continue
 
-        logger.info(f"\n{'─' * 50}\nRunning: {case['case']}")
+        logger.info(f"\n{'-' * 50}\nRunning: {case['case']}")
         try:
             report = run_single_case(
                 case, args.output,

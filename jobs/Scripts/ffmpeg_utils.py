@@ -115,7 +115,7 @@ def measure_psnr(ffmpeg_exe, input_video, output_video, log_path):
     Per-frame stats are written to log_path as a test artifact.
     Returns float (dB) or None on failure.
     """
-    stats_path = log_path.replace("\\", "/")
+    stats_path = log_path.replace("\\", "/").replace(":", "\\:")
     cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
            f' -lavfi "psnr=stats_file={stats_path}" -f null -')
     logger.info("Measuring PSNR (ffmpeg filter)")

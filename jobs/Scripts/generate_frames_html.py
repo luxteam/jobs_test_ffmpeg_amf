@@ -209,15 +209,13 @@ def _render_worst_frames(worst_frames):
         fn    = entry.get("frame_number", "?")
         mse   = entry.get("mse",  "N/A")
         psnr  = entry.get("psnr", "N/A")
-        ssim  = entry.get("ssim", "N/A")
         imgs  = entry.get("images", {})
 
         header = (
             f'<div class="frame-row-header">'
             f'Frame <span class="fi">#{fn}</span> &nbsp;|&nbsp; '
             f'<span class="fm">MSE={mse:.3f}</span> &nbsp; '
-            f'<span class="fp">PSNR={psnr:.2f} dB</span> &nbsp; '
-            f'SSIM={ssim:.4f}'
+            f'<span class="fp">PSNR={psnr:.2f} dB</span>'
             f'</div>'
         ) if isinstance(psnr, float) else (
             f'<div class="frame-row-header">Frame <span class="fi">#{fn}</span></div>'

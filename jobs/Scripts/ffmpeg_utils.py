@@ -115,13 +115,15 @@ def measure_psnr(ffmpeg_exe, input_video, output_video, log_path):
     Per-frame stats are written to log_path as a test artifact.
     Returns float (dB) or None on failure.
     """
-    stats_path = log_path.replace("\\", "/").replace(":", "\\:")
+    log_dir  = os.path.dirname(log_path)
+    log_name = os.path.basename(log_path)
+    os.makedirs(log_dir, exist_ok=True)
     cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
-           f' -lavfi "psnr=stats_file={stats_path}" -f null -')
+           f' -lavfi "psnr=stats_file={log_name}" -f null -')
     logger.info("Measuring PSNR (ffmpeg filter)")
     try:
         result = subprocess.run(cmd, stderr=subprocess.PIPE, text=True,
-                                timeout=300, shell=True)
+                                timeout=300, shell=True, cwd=log_dir)
         match = re.search(r"average:(\S+)", result.stderr)
         if match:
             val = match.group(1)

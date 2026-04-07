@@ -27,9 +27,11 @@ import argparse
 import json
 import logging
 import os
+import platform
 import re
 import sys
 import traceback
+import uuid
 from datetime import datetime
 
 import ffmpeg_utils as fu
@@ -126,6 +128,100 @@ def write_report_compare_json(output_dir, reports):
     path = os.path.join(output_dir, "report_compare.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(reports, f, indent=4)
+
+
+def _get_os_string():
+    """Match jobs_launcher core.system_info.get_os() output format."""
+    custom = os.getenv("CIS_OS")
+    if custom:
+        return custom
+    if platform.system() == "Windows":
+        return "{} {}({})".format(platform.system(), platform.release(), platform.architecture()[0])
+    return platform.system()
+
+
+def _make_screens_collection(report, output_dir):
+    """
+    Build a screens_collection list from worst_frames for the Compare tab.
+    Paths are relative to output_dir so jobs_launcher can resolve them.
+    """
+    screens = []
+    for wf in report.get("worst_frames", []):
+        imgs = wf.get("images", {})
+        psnr = wf.get("psnr")
+        fn   = wf.get("frame_number", "?")
+        suffix = f" PSNR={psnr:.2f}" if isinstance(psnr, float) else ""
+        for key in ("output", "input", "diff_scaled"):
+            abs_path = imgs.get(key)
+            if abs_path and os.path.exists(abs_path):
+                rel = os.path.relpath(abs_path, output_dir).replace("\\", "/")
+                screens.append({"path": rel, "title": f"Frame #{fn} {key}{suffix}"})
+    return screens
+
+
+def write_session_report(output_dir, all_reports, test_group, gpu_name):
+    """
+    Write session_report.json in jobs_launcher format.
+    build_summary_reports() scans for this file to generate summary_report.html.
+    """
+    os_str     = _get_os_string()
+    config_key = f"{gpu_name} {os_str}"
+
+    passed   = sum(1 for r in all_reports if r["test_status"] == "passed")
+    failed   = sum(1 for r in all_reports if r["test_status"] == "failed")
+    errors   = sum(1 for r in all_reports if r["test_status"] == "error")
+    skipped  = sum(1 for r in all_reports if r["test_status"] == "skipped")
+    observed = sum(1 for r in all_reports if r["test_status"] == "observed")
+    total    = passed + failed + errors + skipped + observed
+    duration  = sum(r.get("render_time",    0.0) for r in all_reports)
+    exec_time = sum(r.get("execution_time", 0.0) for r in all_reports)
+
+    render_version = all_reports[0]["render_version"] if all_reports else ""
+
+    machine_info = {
+        "render_device":  gpu_name,
+        "os":             os_str,
+        "tool":           "FFmpeg AMF",
+        "render_version": render_version,
+        "core_version":   "",
+        "reporting_date": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+    }
+
+    render_results = []
+    for r in all_reports:
+        entry = dict(r)
+        screens = _make_screens_collection(r, output_dir)
+        if screens:
+            entry["screens_collection"] = screens
+        render_results.append(entry)
+
+    counts = {
+        "total": total, "passed": passed, "failed": failed,
+        "observed": observed, "error": errors, "skipped": skipped,
+        "duration": duration, "render_duration": duration,
+        "synchronization_duration": 0.0, "execution_time": exec_time,
+    }
+
+    session = {
+        "machine_info": machine_info,
+        "results": {
+            test_group: {
+                config_key: dict(
+                    result_path=".",
+                    render_results=render_results,
+                    machine_info=machine_info,
+                    **counts,
+                )
+            }
+        },
+        "guid":         str(uuid.uuid4()),
+        "failed_tests": [],
+        "summary":      counts,
+    }
+
+    path = os.path.join(output_dir, "session_report.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(session, f, indent=4)
 
 
 def _strip_json_comments(text):
@@ -332,6 +428,7 @@ def run(args):
 
     write_test_cases_json(args.output, cases_with_status)
     write_report_compare_json(args.output, all_reports)
+    write_session_report(args.output, all_reports, test_group, args.gpu_name)
 
     passed  = sum(1 for r in all_reports if r["test_status"] == "passed")
     failed  = sum(1 for r in all_reports if r["test_status"] == "failed")

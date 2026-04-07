@@ -7,6 +7,6 @@ tracked_metrics_files_number = 10
 show_render_time = True
 show_performance_tab = False
 show_compare_tab = True
-compare_tab_type = 'screens'
+compare_tab_type = 'default'
 show_execution_time = True
 screens_quality = 75

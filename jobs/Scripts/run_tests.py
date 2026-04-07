@@ -99,7 +99,6 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "file_name":                "",             # set to output video filename
         "render_color_path":        "",
         "error_screen_path":        "",
-        "baseline_json_path":       "",
         "script_info":              case.get("description", []),
         "screens_path":             os.path.abspath(os.path.join(output_dir, FRAMES_DIR, case["case"])),
         # --- custom fields (pass through jobs_launcher transparently) ---
@@ -123,9 +122,18 @@ def write_test_cases_json(output_dir, cases):
         json.dump(cases, f, indent=4)
 
 
+RESULTS_SUBDIR = "results-data"
+
+
 def write_report_compare_json(output_dir, reports):
-    """Collect all case reports into report_compare.json for build_reports.bat."""
-    path = os.path.join(output_dir, "report_compare.json")
+    """
+    Write report_compare.json into the results-data/ subdir.
+    jobs_launcher's build_local_reports reads report_compare.json from
+    session_report's result_path, which must contain at least one dash.
+    """
+    subdir = os.path.join(output_dir, RESULTS_SUBDIR)
+    os.makedirs(subdir, exist_ok=True)
+    path = os.path.join(subdir, "report_compare.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(reports, f, indent=4)
 
@@ -186,18 +194,7 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
         "reporting_date": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
     }
 
-    render_results = []
-    for r in all_reports:
-        entry = dict(r)
-        # Remove empty baseline_json_path — os.path.join(work_dir, "") resolves
-        # to the directory itself, causing PermissionError when reportExporter
-        # tries to open it as a file.
-        if not entry.get("baseline_json_path"):
-            entry.pop("baseline_json_path", None)
-        screens = _make_screens_collection(r, output_dir)
-        if screens:
-            entry["screens_collection"] = screens
-        render_results.append(entry)
+    render_results = list(all_reports)
 
     counts = {
         "total": total, "passed": passed, "failed": failed,
@@ -208,12 +205,14 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
 
     # jobs_launcher hardcodes results[test_package][""] (empty string) as the
     # second-level config key in build_summary_report (line 967-971).
+    # result_path must contain at least one dash — build_summary_reports splits
+    # it on "-" to populate summary["result_path"] (line 1664-1665).
     session = {
         "machine_info": machine_info,
         "results": {
             test_group: {
                 "": dict(
-                    result_path=".",
+                    result_path=RESULTS_SUBDIR,
                     render_results=render_results,
                     machine_info=machine_info,
                     **counts,

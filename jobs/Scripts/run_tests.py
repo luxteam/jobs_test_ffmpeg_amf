@@ -230,9 +230,6 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
     # second-level config key in build_summary_report (line 967-971).
     # result_path must contain at least one dash — build_summary_reports splits
     # it on "-" to populate summary["result_path"] (line 1664-1665).
-    # Counts inside results[test_group][""] are zeroed out so build_summary_report
-    # calculates them from render_results (avoids double-counting / displaced columns).
-    zero_counts = {k: (0.0 if isinstance(v, float) else 0) for k, v in counts.items()}
     session = {
         "machine_info": machine_info,
         "results": {
@@ -241,7 +238,7 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
                     result_path=RESULTS_SUBDIR,
                     render_results=render_results,
                     machine_info=machine_info,
-                    **zero_counts,
+                    **counts,
                 )
             }
         },

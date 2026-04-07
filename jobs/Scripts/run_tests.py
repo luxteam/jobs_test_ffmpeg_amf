@@ -164,8 +164,7 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
     Write session_report.json in jobs_launcher format.
     build_summary_reports() scans for this file to generate summary_report.html.
     """
-    os_str     = _get_os_string()
-    config_key = f"{gpu_name} {os_str}"
+    os_str = _get_os_string()
 
     passed   = sum(1 for r in all_reports if r["test_status"] == "passed")
     failed   = sum(1 for r in all_reports if r["test_status"] == "failed")
@@ -190,6 +189,11 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
     render_results = []
     for r in all_reports:
         entry = dict(r)
+        # Remove empty baseline_json_path — os.path.join(work_dir, "") resolves
+        # to the directory itself, causing PermissionError when reportExporter
+        # tries to open it as a file.
+        if not entry.get("baseline_json_path"):
+            entry.pop("baseline_json_path", None)
         screens = _make_screens_collection(r, output_dir)
         if screens:
             entry["screens_collection"] = screens
@@ -202,11 +206,13 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
         "synchronization_duration": 0.0, "execution_time": exec_time,
     }
 
+    # jobs_launcher hardcodes results[test_package][""] (empty string) as the
+    # second-level config key in build_summary_report (line 967-971).
     session = {
         "machine_info": machine_info,
         "results": {
             test_group: {
-                config_key: dict(
+                "": dict(
                     result_path=".",
                     render_results=render_results,
                     machine_info=machine_info,

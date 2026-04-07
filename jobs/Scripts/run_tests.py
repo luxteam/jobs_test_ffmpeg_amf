@@ -193,6 +193,12 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
 
     render_version = all_reports[0]["render_version"] if all_reports else ""
 
+    try:
+        import psutil
+        ram_gb = psutil.virtual_memory().total / 1024 ** 3
+    except Exception:
+        ram_gb = 0.0
+
     machine_info = {
         "render_device":  gpu_name,
         "os":             os_str,
@@ -203,6 +209,10 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
         "host":           platform.node(),
         "driver_version": "",
         "driver":         "",
+        "newest_driver":  "",
+        "cpu":            "",
+        "cpu_count":      str(os.cpu_count() or 0),
+        "ram":            ram_gb,
     }
 
     render_results = list(all_reports)

@@ -98,6 +98,7 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "render_mode":              "",
         "file_name":                "",             # set to output video filename
         "render_color_path":        "",
+        "render_log":               "",
         "error_screen_path":        "",
         "render_start_time":        "",
         "render_end_time":          "",
@@ -210,7 +211,8 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
         "driver_version": "",
         "driver":         "",
         "newest_driver":  "",
-        "cpu":            "",
+        # "cpu" omitted intentionally — columns_template.html hides the CPU line
+        # when machine_info.cpu is undefined (streaming_sdk report_type branch)
         "cpu_count":      str(os.cpu_count() or 0),
         "ram":            ram_gb,
     }
@@ -228,6 +230,9 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
     # second-level config key in build_summary_report (line 967-971).
     # result_path must contain at least one dash — build_summary_reports splits
     # it on "-" to populate summary["result_path"] (line 1664-1665).
+    # Counts inside results[test_group][""] are zeroed out so build_summary_report
+    # calculates them from render_results (avoids double-counting / displaced columns).
+    zero_counts = {k: (0.0 if isinstance(v, float) else 0) for k, v in counts.items()}
     session = {
         "machine_info": machine_info,
         "results": {
@@ -236,7 +241,7 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
                     result_path=RESULTS_SUBDIR,
                     render_results=render_results,
                     machine_info=machine_info,
-                    **counts,
+                    **zero_counts,
                 )
             }
         },
@@ -300,6 +305,8 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     # ---- 2. Run FFMPEG conversion ----
     output_video   = os.path.join(case_output_dir, f"{case_name}_output.mp4")
     conversion_log = os.path.join(case_output_dir, f"{case_name}_conversion.log")
+    # Set render_log as path relative to output_dir for the Logs link in the report
+    report["render_log"] = os.path.relpath(conversion_log, output_dir).replace("\\", "/")
 
     cmd = fu.build_conversion_command(ffmpeg_exe, input_video_path, output_video, case)
     report["ffmpeg_command"] = cmd
@@ -347,10 +354,30 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
                 input_video_path, output_video, frames_dir, count=5, psnr_log=psnr_log
             )
             report["worst_frames"] = worst_frames
+            # Set render_color_path to first worst frame's output image (relative to
+            # output_dir) — drives image display in Compare tab and local report.
+            if worst_frames:
+                first_img = worst_frames[0].get("images", {}).get("output")
+                if first_img and os.path.exists(first_img):
+                    report["render_color_path"] = os.path.relpath(
+                        first_img, output_dir
+                    ).replace("\\", "/")
         except Exception as e:
             logger.warning(f"[{case_name}] Frame extraction failed: {e}")
 
-    # ---- 7. Apply rules ----
+    # ---- 7. Add quality metrics to Message column ----
+    if psnr is not None or ssim is not None:
+        parts = []
+        if psnr is not None:
+            parts.append(f"PSNR: {psnr:.2f} dB")
+        if ssim is not None:
+            parts.append(f"SSIM: {ssim:.4f}")
+        report["message"].append({
+            "issue":       ", ".join(parts),
+            "description": "Quality metrics",
+        })
+
+    # ---- 9. Apply rules ----
     report["test_status"] = "passed"   # rules will downgrade if needed
     data = {
         "ffmpeg_returncode": returncode,

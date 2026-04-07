@@ -2,7 +2,7 @@
     "cases": [
 
         {
-            "case": "hwaccel_1",
+            "case": "hwaccel_001",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -22,7 +22,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_2",
+            "case": "hwaccel_002",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -42,7 +42,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_3",
+            "case": "hwaccel_003",
             "status": "skipped",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -62,7 +62,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_4",
+            "case": "hwaccel_004",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -82,7 +82,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_5",
+            "case": "hwaccel_005",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -102,7 +102,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_6",
+            "case": "hwaccel_006",
             "status": "skipped",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -123,7 +123,7 @@
         },
 
         {
-            "case": "hwaccel_7",
+            "case": "hwaccel_007",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -143,7 +143,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_8",
+            "case": "hwaccel_008",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -163,7 +163,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_9",
+            "case": "hwaccel_009",
             "status": "skipped",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -183,7 +183,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_10",
+            "case": "hwaccel_010",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -203,7 +203,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_11",
+            "case": "hwaccel_011",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -223,7 +223,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_12",
+            "case": "hwaccel_012",
             "status": "skipped",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -243,7 +243,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_13",
+            "case": "hwaccel_013",
             "status": "skipped",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -263,7 +263,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_14",
+            "case": "hwaccel_014",
             "status": "skipped",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -283,7 +283,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_15",
+            "case": "hwaccel_015",
             "status": "skipped",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -304,7 +304,7 @@
         },
 
         {
-            "case": "hwaccel_16",
+            "case": "hwaccel_016",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -324,7 +324,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_17",
+            "case": "hwaccel_017",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -344,7 +344,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_18",
+            "case": "hwaccel_018",
             "status": "skipped",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -364,7 +364,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_19",
+            "case": "hwaccel_019",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -384,7 +384,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_20",
+            "case": "hwaccel_020",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -404,7 +404,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_21",
+            "case": "hwaccel_021",
             "status": "skipped",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -424,7 +424,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_22",
+            "case": "hwaccel_022",
             "status": "skipped",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -444,7 +444,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_23",
+            "case": "hwaccel_023",
             "status": "skipped",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -464,7 +464,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_24",
+            "case": "hwaccel_024",
             "status": "skipped",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -485,7 +485,7 @@
         },
 
         {
-            "case": "hwaccel_25",
+            "case": "hwaccel_025",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -505,7 +505,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_26",
+            "case": "hwaccel_026",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -525,7 +525,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_27",
+            "case": "hwaccel_027",
             "status": "skipped",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -545,7 +545,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_28",
+            "case": "hwaccel_028",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -565,7 +565,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_29",
+            "case": "hwaccel_029",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -585,7 +585,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_30",
+            "case": "hwaccel_030",
             "status": "skipped",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -605,7 +605,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_31",
+            "case": "hwaccel_031",
             "status": "skipped",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -625,7 +625,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_32",
+            "case": "hwaccel_032",
             "status": "skipped",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -645,7 +645,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_33",
+            "case": "hwaccel_033",
             "status": "skipped",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -666,7 +666,7 @@
         },
 
         {
-            "case": "hwaccel_34",
+            "case": "hwaccel_034",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -686,7 +686,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_35",
+            "case": "hwaccel_035",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -706,7 +706,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_36",
+            "case": "hwaccel_036",
             "status": "skipped",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_h264.mp4",
@@ -726,7 +726,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_37",
+            "case": "hwaccel_037",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -746,7 +746,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_38",
+            "case": "hwaccel_038",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -766,7 +766,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_39",
+            "case": "hwaccel_039",
             "status": "skipped",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_hevc.mp4",
@@ -786,7 +786,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_40",
+            "case": "hwaccel_040",
             "status": "skipped",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -806,7 +806,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_41",
+            "case": "hwaccel_041",
             "status": "skipped",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
             "input_video": "hwaccel_input_av1.mkv",
@@ -826,7 +826,7 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
         },
         {
-            "case": "hwaccel_42",
+            "case": "hwaccel_042",
             "status": "skipped",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
             "input_video": "hwaccel_input_av1.mkv",

@@ -384,7 +384,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
                 frame_num = wf.get("frame_number", "?")
                 frame_psnr = wf.get("psnr")
                 psnr_suffix = f" PSNR={frame_psnr:.2f}" if isinstance(frame_psnr, float) else ""
-                for img_key in ("output", "input", "diff_scaled"):
+                for img_key in ("output", "input", "diff_scaled", "diff_thresh"):
                     abs_path = imgs.get(img_key)
                     if abs_path and os.path.exists(abs_path):
                         rel = os.path.relpath(abs_path, _results_dir).replace("\\", "/")

@@ -115,6 +115,11 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "ssim":                     None,
         "metadata":                 {},
         "ffmpeg_command":           "",
+        # screens_collection: populated after frame extraction for the Frames carousel
+        "screens_collection":       [],
+        # separate log paths for PSNR/SSIM measurements (used in log column)
+        "psnr_log":                 "",
+        "ssim_log":                 "",
     }
 
 
@@ -285,6 +290,32 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
 
     report = make_case_report(case, output_dir, gpu_name, test_group, render_version)
 
+    # ---- 0. Build rich script_info for Info column ----
+    # Includes: ffmpeg command keys from the test case, test description, expected metadata
+    info_lines = []
+
+    # FFmpeg command keys (exclude 'case', 'input_video', 'description', 'status', 'expected_metadata')
+    _skip_keys = {"case", "input_video", "description", "status", "expected_metadata"}
+    cmd_parts = []
+    for k, v in case.items():
+        if k not in _skip_keys:
+            cmd_parts.append(f"-{k} {v}")
+    if cmd_parts:
+        info_lines.append("FFmpeg keys: " + " ".join(cmd_parts))
+
+    # Description lines from test pack
+    for line in case.get("description", []):
+        info_lines.append(line)
+
+    # Expected metadata (from test pack)
+    exp_meta = case.get("expected_metadata", {})
+    if exp_meta:
+        info_lines.append("Expected metadata:")
+        for k, v in exp_meta.items():
+            info_lines.append(f"  {k}: {v}")
+
+    report["script_info"] = info_lines
+
     # ---- 1. Resolve and verify input video ----
     input_file = case.get("input_video") or default_input_video
     input_video_path = os.path.join(video_samples_dir, input_file)
@@ -333,13 +364,15 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     if os.path.exists(output_video):
         psnr = fu.measure_psnr(ffmpeg_exe, input_video_path, output_video, psnr_log)
         report["psnr"] = psnr
+        report["psnr_log"] = os.path.relpath(psnr_log, output_dir).replace("\\", "/")
 
     # ---- 5. Measure SSIM ----
     ssim = None
+    ssim_log_path = os.path.join(case_output_dir, f"{case_name}_ssim.log")
     if os.path.exists(output_video):
-        ssim_log = os.path.join(case_output_dir, f"{case_name}_ssim.log")
-        ssim = fu.measure_ssim(ffmpeg_exe, input_video_path, output_video, ssim_log)
+        ssim = fu.measure_ssim(ffmpeg_exe, input_video_path, output_video, ssim_log_path)
         report["ssim"] = ssim
+        report["ssim_log"] = os.path.relpath(ssim_log_path, output_dir).replace("\\", "/")
 
     # ---- 6. Extract worst frames for visual comparison ----
     # ffmpeg psnr stats log (written by measure_psnr) is parsed to find worst N
@@ -351,8 +384,29 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
                 input_video_path, output_video, frames_dir, count=5, psnr_log=psnr_log
             )
             report["worst_frames"] = worst_frames
-            # Set render_color_path to first worst frame's output image (relative to
-            # output_dir) — drives image display in Compare tab and local report.
+
+            # Build screens_collection for the Frames carousel column.
+            # Each entry needs: path, thumb256, thumb128, name.
+            # We use the same image for path and thumbs (no separate thumbnails generated).
+            screens = []
+            for wf in worst_frames:
+                imgs = wf.get("images", {})
+                frame_num = wf.get("frame_number", "?")
+                frame_psnr = wf.get("psnr")
+                psnr_suffix = f" PSNR={frame_psnr:.2f}" if isinstance(frame_psnr, float) else ""
+                for img_key in ("output", "input", "diff_scaled"):
+                    abs_path = imgs.get(img_key)
+                    if abs_path and os.path.exists(abs_path):
+                        rel = os.path.relpath(abs_path, output_dir).replace("\\", "/")
+                        screens.append({
+                            "path":    rel,
+                            "thumb256": rel,
+                            "thumb128": rel,
+                            "name":    f"Frame #{frame_num} {img_key}{psnr_suffix}",
+                        })
+            report["screens_collection"] = screens
+
+            # render_color_path: first output image for Compare tab
             if worst_frames:
                 first_img = worst_frames[0].get("images", {}).get("output")
                 if first_img and os.path.exists(first_img):
@@ -362,7 +416,19 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
         except Exception as e:
             logger.warning(f"[{case_name}] Frame extraction failed: {e}")
 
-    # ---- 7. Add quality metrics to Message column ----
+    # ---- 7. Add ffprobe metadata + quality metrics to Message column ----
+    # ffprobe metadata (actual output video properties)
+    if metadata:
+        meta_parts = []
+        for k, v in metadata.items():
+            meta_parts.append(f"{k}: {v}")
+        if meta_parts:
+            report["message"].append({
+                "issue":       "Output video metadata: " + ", ".join(meta_parts),
+                "description": "ffprobe output",
+            })
+
+    # PSNR / SSIM quality metrics
     if psnr is not None or ssim is not None:
         parts = []
         if psnr is not None:

@@ -115,9 +115,16 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "ssim":                     None,
         "metadata":                 {},
         "ffmpeg_command":           "",
+        # ffmpeg_keys: the raw "keys" string from the test case (shown in Info column)
+        "ffmpeg_keys":              case.get("keys", ""),
+        # expected_metadata: from test case (shown in Info column)
+        "expected_metadata":        case.get("expected_metadata", {}),
         # screens_collection: populated after frame extraction for the Frames carousel
         "screens_collection":       [],
-        # separate log paths for PSNR/SSIM measurements (used in log column)
+        # Log paths stored relative to results-data/ (NOT in POSSIBLE_JSON_LOG_KEYS,
+        # so not path-rewritten — same pattern as streaming_sdk server_log/client_log).
+        # render_log is left empty to avoid its path-rewriting side-effects.
+        "ffmpeg_conversion_log":    "",
         "psnr_log":                 "",
         "ssim_log":                 "",
     }
@@ -290,31 +297,10 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
 
     report = make_case_report(case, output_dir, gpu_name, test_group, render_version)
 
-    # ---- 0. Build rich script_info for Info column ----
-    # Includes: ffmpeg command keys from the test case, test description, expected metadata
-    info_lines = []
-
-    # FFmpeg command keys (exclude 'case', 'input_video', 'description', 'status', 'expected_metadata')
-    _skip_keys = {"case", "input_video", "description", "status", "expected_metadata"}
-    cmd_parts = []
-    for k, v in case.items():
-        if k not in _skip_keys:
-            cmd_parts.append(f"-{k} {v}")
-    if cmd_parts:
-        info_lines.append("FFmpeg keys: " + " ".join(cmd_parts))
-
-    # Description lines from test pack
-    for line in case.get("description", []):
-        info_lines.append(line)
-
-    # Expected metadata (from test pack)
-    exp_meta = case.get("expected_metadata", {})
-    if exp_meta:
-        info_lines.append("Expected metadata:")
-        for k, v in exp_meta.items():
-            info_lines.append(f"  {k}: {v}")
-
-    report["script_info"] = info_lines
+    # ---- 0. Populate Info column fields ----
+    # ffmpeg_keys and expected_metadata are already set in make_case_report.
+    # script_info holds the human-readable description lines shown under "Description:".
+    report["script_info"] = case.get("description", [])
 
     # ---- 1. Resolve and verify input video ----
     input_file = case.get("input_video") or default_input_video
@@ -333,8 +319,12 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     # ---- 2. Run FFMPEG conversion ----
     output_video   = os.path.join(case_output_dir, f"{case_name}_output.mp4")
     conversion_log = os.path.join(case_output_dir, f"{case_name}_conversion.log")
-    # Set render_log as path relative to output_dir for the Logs link in the report
-    report["render_log"] = os.path.relpath(conversion_log, output_dir).replace("\\", "/")
+    # Store log paths relative to results-data/ (same pattern as streaming_sdk server_log).
+    # These fields are NOT in POSSIBLE_JSON_LOG_KEYS so they are never path-rewritten.
+    # The HTML report lives at results-data/report.html, so paths like ../hwaccel_1/...
+    # resolve correctly from the browser.
+    _results_dir = os.path.join(output_dir, RESULTS_SUBDIR)
+    report["ffmpeg_conversion_log"] = os.path.relpath(conversion_log, _results_dir).replace("\\", "/")
 
     cmd = fu.build_conversion_command(ffmpeg_exe, input_video_path, output_video, case)
     report["ffmpeg_command"] = cmd
@@ -364,7 +354,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     if os.path.exists(output_video):
         psnr = fu.measure_psnr(ffmpeg_exe, input_video_path, output_video, psnr_log)
         report["psnr"] = psnr
-        report["psnr_log"] = os.path.relpath(psnr_log, output_dir).replace("\\", "/")
+        report["psnr_log"] = os.path.relpath(psnr_log, _results_dir).replace("\\", "/")
 
     # ---- 5. Measure SSIM ----
     ssim = None
@@ -372,7 +362,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     if os.path.exists(output_video):
         ssim = fu.measure_ssim(ffmpeg_exe, input_video_path, output_video, ssim_log_path)
         report["ssim"] = ssim
-        report["ssim_log"] = os.path.relpath(ssim_log_path, output_dir).replace("\\", "/")
+        report["ssim_log"] = os.path.relpath(ssim_log_path, _results_dir).replace("\\", "/")
 
     # ---- 6. Extract worst frames for visual comparison ----
     # ffmpeg psnr stats log (written by measure_psnr) is parsed to find worst N
@@ -397,7 +387,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
                 for img_key in ("output", "input", "diff_scaled"):
                     abs_path = imgs.get(img_key)
                     if abs_path and os.path.exists(abs_path):
-                        rel = os.path.relpath(abs_path, output_dir).replace("\\", "/")
+                        rel = os.path.relpath(abs_path, _results_dir).replace("\\", "/")
                         screens.append({
                             "path":    rel,
                             "thumb256": rel,
@@ -411,7 +401,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
                 first_img = worst_frames[0].get("images", {}).get("output")
                 if first_img and os.path.exists(first_img):
                     report["render_color_path"] = os.path.relpath(
-                        first_img, output_dir
+                        first_img, _results_dir
                     ).replace("\\", "/")
         except Exception as e:
             logger.warning(f"[{case_name}] Frame extraction failed: {e}")

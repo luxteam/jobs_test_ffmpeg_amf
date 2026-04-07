@@ -99,6 +99,14 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "file_name":                "",             # set to output video filename
         "render_color_path":        "",
         "error_screen_path":        "",
+        "render_start_time":        "",
+        "render_end_time":          "",
+        "case_functions":           "",
+        "testcase_timeout":         0,
+        "difference_color":         -0.0,
+        "difference_time":          -0.0,
+        "difference_color_2":       -0,
+        "has_time_diff":            False,
         "script_info":              case.get("description", []),
         "screens_path":             os.path.abspath(os.path.join(output_dir, FRAMES_DIR, case["case"])),
         # --- custom fields (pass through jobs_launcher transparently) ---
@@ -192,6 +200,9 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
         "render_version": render_version,
         "core_version":   "",
         "reporting_date": datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+        "host":           platform.node(),
+        "driver_version": "",
+        "driver":         "",
     }
 
     render_results = list(all_reports)

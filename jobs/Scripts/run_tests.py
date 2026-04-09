@@ -475,6 +475,7 @@ def run(args):
 
     render_version = fu.get_ffmpeg_version(ffmpeg_exe)
     test_group     = os.path.splitext(os.path.basename(args.test_pack))[0]
+    group_dir      = os.path.join(args.output, test_group)
     logger.info(f"  FFmpeg version: {render_version}")
     logger.info(f"  Test group:     {test_group}")
 
@@ -501,10 +502,10 @@ def run(args):
 
         if case.get("status") == "skipped":
             logger.info(f"[{case['case']}] Skipped")
-            report = make_case_report(case, args.output, args.gpu_name, test_group, render_version)
+            report = make_case_report(case, group_dir, args.gpu_name, test_group, render_version)
             report["test_status"]            = "skipped"
             report["group_timeout_exceeded"] = False
-            write_case_report(args.output, report)
+            write_case_report(group_dir, report)
             all_reports.append(report)
             case_copy["status"] = "skipped"
             cases_with_status.append(case_copy)
@@ -513,28 +514,28 @@ def run(args):
         logger.info(f"\n{'-' * 50}\nRunning: {case['case']}")
         try:
             report = run_single_case(
-                case, args.output,
+                case, group_dir,
                 ffmpeg_exe, ffprobe_exe,
                 args.video_samples, default_input_video,
                 args.gpu_name, test_group, render_version, logger
             )
         except Exception as e:
             logger.error(f"Case {case['case']} crashed: {e}\n{traceback.format_exc()}")
-            report = make_case_report(case, args.output, args.gpu_name, test_group, render_version)
+            report = make_case_report(case, group_dir, args.gpu_name, test_group, render_version)
             report["test_status"] = "error"
             report["message"].append({
                 "issue":       f"Unexpected crash: {e}",
                 "description": "Unhandled exception in test runner"
             })
 
-        write_case_report(args.output, report)
+        write_case_report(group_dir, report)
         all_reports.append(report)
         case_copy["status"] = report["test_status"]
         cases_with_status.append(case_copy)
 
-    write_test_cases_json(args.output, cases_with_status)
-    write_report_compare_json(args.output, all_reports)
-    write_session_report(args.output, all_reports, test_group, args.gpu_name)
+    write_test_cases_json(group_dir, cases_with_status)
+    write_report_compare_json(group_dir, all_reports)
+    write_session_report(group_dir, all_reports, test_group, args.gpu_name)
 
     passed  = sum(1 for r in all_reports if r["test_status"] == "passed")
     failed  = sum(1 for r in all_reports if r["test_status"] == "failed")
@@ -544,7 +545,7 @@ def run(args):
         f"\nSummary: {passed} passed, {failed} failed, {errors} errors,"
         f" {skipped} skipped / {len(all_reports)} total"
     )
-    logger.info(f"Results written to: {args.output}")
+    logger.info(f"Results written to: {group_dir}")
 
     return 0  # test failures are reported via report files; exit 1 is reserved for setup errors
 

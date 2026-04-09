@@ -169,24 +169,6 @@ def _get_os_string():
     return platform.system()
 
 
-def _make_screens_collection(report, output_dir):
-    """
-    Build a screens_collection list from worst_frames for the Compare tab.
-    Paths are relative to output_dir so jobs_launcher can resolve them.
-    """
-    screens = []
-    for wf in report.get("worst_frames", []):
-        imgs = wf.get("images", {})
-        psnr = wf.get("psnr")
-        fn   = wf.get("frame_number", "?")
-        suffix = f" PSNR={psnr:.2f}" if isinstance(psnr, float) else ""
-        for key in ("output", "input", "diff_scaled"):
-            abs_path = imgs.get(key)
-            if abs_path and os.path.exists(abs_path):
-                rel = os.path.relpath(abs_path, output_dir).replace("\\", "/")
-                screens.append({"path": rel, "title": f"Frame #{fn} {key}{suffix}"})
-    return screens
-
 
 def write_session_report(output_dir, all_reports, test_group, gpu_name):
     """

@@ -314,7 +314,8 @@ class DecodeRule(Rule):
 
         decode_errors = self._decode_check(context["ffmpeg_exe"], context["output_video"])
         if decode_errors:
-            self.add_error(f"Decode errors detected: {decode_errors}")
+            message = f"Decode errors detected: {decode_errors}"
+            self.add_error(message if len(message) <= 1000 else message[:1000] + "...")
         else:
             logger.info("DecodeRule: no decode errors")
             self.json_content["message"].append({

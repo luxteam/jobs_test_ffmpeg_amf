@@ -425,6 +425,15 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     processor.process(data)
 
     logger.info(f"[{case_name}] Final status: {report['test_status']}")
+
+    # ---- 10. Cleanup output video ----
+    try:
+        if os.path.exists(output_video):
+            os.remove(output_video)
+            logger.info(f"[{case_name}] Output video removed")
+    except Exception as e:
+        logger.warning(f"[{case_name}] Could not remove output video: {e}")
+
     return report
 
 

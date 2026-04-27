@@ -161,6 +161,44 @@ def measure_ssim(ffmpeg_exe, input_video, output_video, log_path):
         return None
 
 
+def decode_check(ffmpeg_exe, output_video):
+    """
+    Decode the output video with ffmpeg -v error and capture stderr.
+    Returns stderr string — empty string means no decode errors.
+    """
+    cmd = f'"{ffmpeg_exe}" -hide_banner -v error -i "{output_video}" -map 0:v:0 -f null -'
+    logger.info(f"Running decode check: {cmd}")
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300, shell=True)
+        return result.stderr.strip()
+    except Exception as e:
+        logger.error(f"Decode check error: {e}")
+        return str(e)
+
+
+def get_frame_count(ffprobe_exe, output_video):
+    """
+    Count actual decoded frames in the output video using ffprobe -count_frames.
+    Returns int or None on failure.
+    """
+    cmd = (f'"{ffprobe_exe}" -v error -count_frames -select_streams v:0'
+           f' -show_entries stream=nb_read_frames'
+           f' -of default=noprint_wrappers=1 "{output_video}"')
+    logger.info(f"Running frame count: {cmd}")
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300, shell=True)
+        match = re.search(r"nb_read_frames=(\d+)", result.stdout)
+        if match:
+            count = int(match.group(1))
+            logger.info(f"Frame count: {count}")
+            return count
+        logger.error("Could not parse nb_read_frames")
+        return None
+    except Exception as e:
+        logger.error(f"Frame count error: {e}")
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Per-frame worst-frame extraction
 # ---------------------------------------------------------------------------

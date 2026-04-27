@@ -1,12 +1,43 @@
+import os
+import re
+
+import ffmpeg_utils as fu
 from rules.rule import Rule
 import logging
 
 logger = logging.getLogger(__name__)
 
 
+class ConversionSuccessRule(Rule):
+    """
+    Checks that the FFMPEG conversion process completed without error.
+    Always applied to every test case.
+    """
+
+    def __init__(self, case, json_content):
+        super().__init__(
+            case, json_content,
+            default_message="FFMPEG conversion process returned a non-zero exit code",
+            description="Check that ffmpeg exited successfully (return code 0)"
+        )
+
+    def should_be_executed(self):
+        return True
+
+    def apply(self, context):
+        returncode = context.get("returncode")
+        if returncode is None or returncode != 0:
+            self.add_error(
+                f"FFMPEG conversion failed with exit code: {returncode}"
+            )
+        else:
+            logger.info("ConversionSuccessRule: ffmpeg exited successfully")
+
+
 class MetadataRule(Rule):
     """
-    Checks that converted video metadata matches expected values from the test case.
+    Runs ffprobe on the output video, records metadata in the report,
+    then checks that each field in expected_metadata matches.
     Reports each mismatched field individually.
     """
 
@@ -20,10 +51,23 @@ class MetadataRule(Rule):
     def should_be_executed(self):
         return "expected_metadata" in self.case and bool(self.case["expected_metadata"])
 
-    def apply(self, data):
-        actual = data.get("metadata", {})
-        expected = self.case.get("expected_metadata", {})
+    def apply(self, context):
+        output_video = context.get("output_video", "")
+        if not os.path.exists(output_video):
+            self.add_error("Output video not found — cannot verify metadata")
+            return
 
+        actual = fu.get_video_metadata(context["ffprobe_exe"], output_video)
+        self.json_content["metadata"] = actual
+
+        if actual:
+            meta_parts = [f"{k}: {v}" for k, v in actual.items()]
+            self.json_content["message"].append({
+                "issue":       "Output video metadata: " + ", ".join(meta_parts),
+                "description": "ffprobe output",
+            })
+
+        expected = self.case.get("expected_metadata", {})
         all_ok = True
         for field, expected_value in expected.items():
             actual_value = actual.get(field)
@@ -44,10 +88,10 @@ class MetadataRule(Rule):
 
 class PSNRRule(Rule):
     """
-    Checks PSNR (Peak Signal-to-Noise Ratio) between input and output video.
-    PSNR below threshold indicates unacceptable quality degradation.
+    Measures PSNR between input and output video using ffmpeg psnr filter.
+    Writes per-frame stats to psnr_log (used later for worst-frame extraction).
+    Skipped automatically when has_reference is False (e.g. lavfi source).
     Default threshold: 30.0 dB (overridable via case "psnr_threshold" field).
-    Skipped for cases without a reference input_video (e.g. lavfi-generated source).
     """
 
     DEFAULT_THRESHOLD = 30.0
@@ -62,8 +106,28 @@ class PSNRRule(Rule):
     def should_be_executed(self):
         return True
 
-    def apply(self, data):
-        psnr = data.get("psnr")
+    def apply(self, context):
+        if not context.get("has_reference"):
+            logger.info("PSNRRule: skipped — no reference input video (lavfi source)")
+            return
+
+        output_video = context.get("output_video", "")
+        if not os.path.exists(output_video):
+            self.add_error("PSNR measurement failed — output video not found")
+            return
+
+        psnr_log = context["psnr_log"]
+        psnr = fu.measure_psnr(
+            context["ffmpeg_exe"], context["input_video"], output_video, psnr_log
+        )
+        self.json_content["psnr"] = psnr
+
+        if os.path.exists(psnr_log):
+            results_dir = context.get("results_dir", "")
+            self.json_content["psnr_log"] = (
+                os.path.relpath(psnr_log, results_dir).replace("\\", "/")
+            )
+
         threshold = self.case.get("psnr_threshold", self.DEFAULT_THRESHOLD)
 
         if psnr is None:
@@ -72,22 +136,24 @@ class PSNRRule(Rule):
 
         if psnr == float("inf"):
             logger.info(f"PSNRRule: PSNR is infinite (lossless or identical), threshold={threshold}")
-            return
-
-        if psnr < threshold:
+        elif psnr < threshold:
             self.add_error(
                 f"Unacceptable PSNR: {psnr:.2f} dB (threshold: {threshold} dB)"
             )
         else:
             logger.info(f"PSNRRule: PSNR={psnr:.2f} dB >= threshold={threshold} dB — OK")
 
+        self.json_content["message"].append({
+            "issue":       f"PSNR: {psnr:.2f} dB",
+            "description": "Quality metrics",
+        })
+
 
 class SSIMRule(Rule):
     """
-    Checks SSIM (Structural Similarity Index) between input and output video.
-    SSIM below threshold indicates unacceptable quality degradation.
+    Measures SSIM between input and output video using ffmpeg ssim filter.
+    Skipped automatically when has_reference is False (e.g. lavfi source).
     Range: 0.0 to 1.0. Default threshold: 0.9 (overridable via case "ssim_threshold" field).
-    Skipped for cases without a reference input_video (e.g. lavfi-generated source).
     """
 
     DEFAULT_THRESHOLD = 0.9
@@ -102,8 +168,28 @@ class SSIMRule(Rule):
     def should_be_executed(self):
         return True
 
-    def apply(self, data):
-        ssim = data.get("ssim")
+    def apply(self, context):
+        if not context.get("has_reference"):
+            logger.info("SSIMRule: skipped — no reference input video (lavfi source)")
+            return
+
+        output_video = context.get("output_video", "")
+        if not os.path.exists(output_video):
+            self.add_error("SSIM measurement failed — output video not found")
+            return
+
+        ssim_log = context["ssim_log"]
+        ssim = fu.measure_ssim(
+            context["ffmpeg_exe"], context["input_video"], output_video, ssim_log
+        )
+        self.json_content["ssim"] = ssim
+
+        if os.path.exists(ssim_log):
+            results_dir = context.get("results_dir", "")
+            self.json_content["ssim_log"] = (
+                os.path.relpath(ssim_log, results_dir).replace("\\", "/")
+            )
+
         threshold = self.case.get("ssim_threshold", self.DEFAULT_THRESHOLD)
 
         if ssim is None:
@@ -117,28 +203,75 @@ class SSIMRule(Rule):
         else:
             logger.info(f"SSIMRule: SSIM={ssim:.4f} >= threshold={threshold} — OK")
 
+        self.json_content["message"].append({
+            "issue":       f"SSIM: {ssim:.4f}",
+            "description": "Quality metrics",
+        })
 
-class ConversionSuccessRule(Rule):
+
+class DecodeRule(Rule):
     """
-    Checks that the FFMPEG conversion process completed without error.
-    Always applied to every test case.
+    Decodes the output video with ffmpeg -v error and checks that stderr is empty.
+    Any output indicates decode errors: corrupted bitstream, broken frames, etc.
+    Applied only when listed in case "rules".
     """
 
     def __init__(self, case, json_content):
         super().__init__(
             case, json_content,
-            default_message="FFMPEG conversion process returned a non-zero exit code",
-            description="Check that ffmpeg exited successfully (return code 0)"
+            default_message="Decode errors detected in output video",
+            description="Decode output video with ffmpeg -v error and verify empty stderr"
         )
 
     def should_be_executed(self):
         return True
 
-    def apply(self, data):
-        returncode = data.get("ffmpeg_returncode")
-        if returncode is None or returncode != 0:
-            self.add_error(
-                f"FFMPEG conversion failed with exit code: {returncode}"
-            )
+    def apply(self, context):
+        output_video = context.get("output_video", "")
+        if not os.path.exists(output_video):
+            self.add_error("Output video not found — cannot perform decode check")
+            return
+
+        decode_errors = fu.decode_check(context["ffmpeg_exe"], output_video)
+        if decode_errors:
+            self.add_error(f"Decode errors detected: {decode_errors}")
         else:
-            logger.info("ConversionSuccessRule: ffmpeg exited successfully")
+            logger.info("DecodeRule: no decode errors")
+
+
+class FrameCountRule(Rule):
+    """
+    Counts decoded frames in the output video with ffprobe -count_frames.
+    Compares against the expected count from -frames:v N in the test case keys.
+    Detects frame loss, early encoder termination, muxer issues.
+    Applied only when listed in case "rules".
+    """
+
+    def __init__(self, case, json_content):
+        super().__init__(
+            case, json_content,
+            default_message="Frame count does not match expected value",
+            description="Count frames with ffprobe -count_frames and compare to -frames:v from keys"
+        )
+
+    def should_be_executed(self):
+        return bool(re.search(r"-frames:v\s+(\d+)", self.case.get("keys", "")))
+
+    def apply(self, context):
+        output_video = context.get("output_video", "")
+        if not os.path.exists(output_video):
+            self.add_error("Output video not found — cannot count frames")
+            return
+
+        match = re.search(r"-frames:v\s+(\d+)", self.case.get("keys", ""))
+        expected = int(match.group(1))
+
+        actual = fu.get_frame_count(context["ffprobe_exe"], output_video)
+        if actual is None:
+            self.add_error("Frame count could not be determined")
+            return
+
+        if actual != expected:
+            self.add_error(f"Frame count mismatch: expected={expected}, actual={actual}")
+        else:
+            logger.info(f"FrameCountRule: {actual} frames — OK")

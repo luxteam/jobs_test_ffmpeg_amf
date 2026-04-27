@@ -279,11 +279,6 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
 
     report = make_case_report(case, output_dir, gpu_name, test_group, render_version)
 
-    # ---- 0. Populate Info column fields ----
-    # ffmpeg_keys and expected_metadata are already set in make_case_report.
-    # script_info holds the human-readable description lines shown under "Description:".
-    report["script_info"] = case.get("description", [])
-
     # ---- 1. Resolve and verify input video ----
     input_file = case.get("input_video")
     has_reference = bool(input_file) and "<input_video>" in case.get("keys", "")
@@ -302,11 +297,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     # ---- 2. Run FFMPEG conversion ----
     output_video   = os.path.join(case_output_dir, f"{case_name}_output.mp4")
     conversion_log = os.path.join(case_output_dir, f"{case_name}_conversion.log")
-    # Store log paths relative to results-data/ (same pattern as streaming_sdk server_log).
-    # These fields are NOT in POSSIBLE_JSON_LOG_KEYS so they are never path-rewritten.
-    # The HTML report lives at results-data/report.html, so paths like ../hwaccel_1/...
-    # resolve correctly from the browser.
-    _results_dir = os.path.join(output_dir, RESULTS_SUBDIR)
+    _results_dir   = os.path.join(output_dir, RESULTS_SUBDIR)
     report["ffmpeg_conversion_log"] = os.path.relpath(conversion_log, _results_dir).replace("\\", "/")
 
     cmd = fu.build_conversion_command(ffmpeg_exe, input_video_path, output_video, case)
@@ -319,52 +310,49 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
         ffmpeg_exe, input_video_path, output_video, case, conversion_log
     )
     elapsed = (datetime.now() - start_time).total_seconds()
-
     report["render_time"]    = elapsed
     report["execution_time"] = elapsed
     logger.info(f"[{case_name}] Conversion done in {elapsed:.1f}s, exit={returncode}")
 
-    # ---- 3. Get metadata with ffprobe ----
-    metadata = {}
-    if os.path.exists(output_video):
-        metadata = fu.get_video_metadata(ffprobe_exe, output_video)
-        report["metadata"] = metadata
+    # ---- 3. Build context and apply rules ----
+    # Each rule is responsible for its own data collection (ffprobe, psnr filter, etc.)
+    # and writes its results directly into the report.
+    # psnr_log path is pre-defined here so PSNRRule writes it to a known location,
+    # allowing frame extraction below to find it after rules complete.
+    context = {
+        "ffmpeg_exe":    ffmpeg_exe,
+        "ffprobe_exe":   ffprobe_exe,
+        "input_video":   input_video_path,
+        "output_video":  output_video,
+        "returncode":    returncode,
+        "has_reference": has_reference,
+        "psnr_log":      os.path.join(case_output_dir, f"{case_name}_psnr.log"),
+        "ssim_log":      os.path.join(case_output_dir, f"{case_name}_ssim.log"),
+        "results_dir":   _results_dir,
+    }
 
-    psnr_log = os.path.join(case_output_dir, f"{case_name}_psnr.log")
+    report["test_status"] = "passed"   # rules will downgrade if needed
+    processor = RulesProcessor(case, report)
+    processor.process(context)
 
-    # ---- 4. Measure PSNR ----
-    psnr = None
-    if has_reference and os.path.exists(output_video):
-        psnr = fu.measure_psnr(ffmpeg_exe, input_video_path, output_video, psnr_log)
-        report["psnr"] = psnr
-        report["psnr_log"] = os.path.relpath(psnr_log, _results_dir).replace("\\", "/")
+    logger.info(f"[{case_name}] Final status: {report['test_status']}")
 
-    # ---- 5. Measure SSIM ----
-    ssim = None
-    ssim_log_path = os.path.join(case_output_dir, f"{case_name}_ssim.log")
-    if has_reference and os.path.exists(output_video):
-        ssim = fu.measure_ssim(ffmpeg_exe, input_video_path, output_video, ssim_log_path)
-        report["ssim"] = ssim
-        report["ssim_log"] = os.path.relpath(ssim_log_path, _results_dir).replace("\\", "/")
-
-    # ---- 6. Extract worst frames for visual comparison ----
-    # ffmpeg psnr stats log (written by measure_psnr) is parsed to find worst N
-    # frames; cv2 seeks directly to those indices to save quad images.
+    # ---- 4. Extract worst frames for visual comparison ----
+    # Requires the PSNR log written by PSNRRule. Skipped if PSNRRule wasn't listed,
+    # if there is no reference input, or if the output video was not produced.
     frames_dir = os.path.join(output_dir, FRAMES_DIR, case_name)
-    if has_reference and os.path.exists(output_video):
+    psnr_log   = context["psnr_log"]
+    if has_reference and os.path.exists(output_video) and os.path.exists(psnr_log):
         try:
             worst_frames = fu.extract_worst_frames(
                 input_video_path, output_video, frames_dir, count=5, psnr_log=psnr_log
             )
             report["worst_frames"] = worst_frames
 
-            # Build screens_collection for the Frames carousel column.
-            # Each entry needs: path, thumb256, thumb128, name.
-            # We use the same image for path and thumbs (no separate thumbnails generated).
             screens = []
             for wf in worst_frames:
                 imgs = wf.get("images", {})
-                frame_num = wf.get("frame_number", "?")
+                frame_num  = wf.get("frame_number", "?")
                 frame_psnr = wf.get("psnr")
                 psnr_suffix = f" PSNR={frame_psnr:.2f}" if isinstance(frame_psnr, float) else ""
                 for img_key in ("output", "input", "diff_scaled", "diff_thresh"):
@@ -372,14 +360,13 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
                     if abs_path and os.path.exists(abs_path):
                         rel = os.path.relpath(abs_path, _results_dir).replace("\\", "/")
                         screens.append({
-                            "path":    rel,
+                            "path":     rel,
                             "thumb256": rel,
                             "thumb128": rel,
-                            "name":    f"Frame #{frame_num} {img_key}{psnr_suffix}",
+                            "name":     f"Frame #{frame_num} {img_key}{psnr_suffix}",
                         })
             report["screens_collection"] = screens
 
-            # render_color_path: first output image for Compare tab
             if worst_frames:
                 first_img = worst_frames[0].get("images", {}).get("output")
                 if first_img and os.path.exists(first_img):
@@ -389,44 +376,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
         except Exception as e:
             logger.warning(f"[{case_name}] Frame extraction failed: {e}")
 
-    # ---- 7. Add ffprobe metadata + quality metrics to Message column ----
-    # ffprobe metadata (actual output video properties)
-    if metadata:
-        meta_parts = []
-        for k, v in metadata.items():
-            meta_parts.append(f"{k}: {v}")
-        if meta_parts:
-            report["message"].append({
-                "issue":       "Output video metadata: " + ", ".join(meta_parts),
-                "description": "ffprobe output",
-            })
-
-    # PSNR / SSIM quality metrics
-    if psnr is not None or ssim is not None:
-        parts = []
-        if psnr is not None:
-            parts.append(f"PSNR: {psnr:.2f} dB")
-        if ssim is not None:
-            parts.append(f"SSIM: {ssim:.4f}")
-        report["message"].append({
-            "issue":       ", ".join(parts),
-            "description": "Quality metrics",
-        })
-
-    # ---- 9. Apply rules ----
-    report["test_status"] = "passed"   # rules will downgrade if needed
-    data = {
-        "ffmpeg_returncode": returncode,
-        "metadata":          metadata,
-        "psnr":              psnr,
-        "ssim":              ssim,
-    }
-    processor = RulesProcessor(case, report)
-    processor.process(data)
-
-    logger.info(f"[{case_name}] Final status: {report['test_status']}")
-
-    # ---- 10. Cleanup output video ----
+    # ---- 5. Cleanup output video ----
     try:
         if os.path.exists(output_video):
             os.remove(output_video)

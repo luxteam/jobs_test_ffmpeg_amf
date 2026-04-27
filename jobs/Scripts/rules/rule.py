@@ -24,10 +24,12 @@ class Rule(ABC):
         pass
 
     @abstractmethod
-    def apply(self, data):
+    def apply(self, context):
         """
-        Apply the rule against collected data.
-        data: dict with keys: metadata, psnr, ssim, ffmpeg_returncode
+        Apply the rule. Each rule is responsible for its own data collection.
+        context: dict with keys:
+            ffmpeg_exe, ffprobe_exe, input_video, output_video,
+            returncode, has_reference, psnr_log, ssim_log, results_dir
         """
         pass
 

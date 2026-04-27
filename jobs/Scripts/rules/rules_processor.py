@@ -3,6 +3,8 @@ import traceback
 
 from rules.rule_impl.ffmpeg_rules import (
     ConversionSuccessRule,
+    DecodeRule,
+    FrameCountRule,
     MetadataRule,
     PSNRRule,
     SSIMRule,
@@ -13,10 +15,11 @@ logger = logging.getLogger(__name__)
 # Registry: rule name in test case JSON -> Rule class
 RULES = {
     "conversion_success": ConversionSuccessRule,
-    "metadata_rule": MetadataRule,
-    "psnr_rule": PSNRRule,
-    "ssim_rule": SSIMRule,
-    # Add new rules here as needed
+    "decode_rule":        DecodeRule,
+    "frame_count_rule":   FrameCountRule,
+    "metadata_rule":      MetadataRule,
+    "psnr_rule":          PSNRRule,
+    "ssim_rule":          SSIMRule,
 }
 
 # Rules applied to every test case regardless of case["rules"]
@@ -40,16 +43,16 @@ class RulesProcessor:
             else:
                 logger.warning(f"Unknown rule '{rule_name}' in case '{case['case']}' — skipping")
 
-    def process(self, data):
+    def process(self, context):
         """
-        Apply all applicable rules against collected data.
-        data: dict with keys: metadata, psnr, ssim, ffmpeg_returncode
+        Apply all applicable rules. Each rule collects its own data from context.
+        context: dict with paths/runtime values passed from the test runner.
         """
         try:
             for rule in self.rules:
                 if rule.should_be_executed():
                     logger.info(f"Applying rule: {rule.__class__.__name__}")
-                    rule.apply(data)
+                    rule.apply(context)
         except Exception as e:
             logger.error(f"Unexpected error in rules_processor: {e}")
             logger.error(traceback.format_exc())

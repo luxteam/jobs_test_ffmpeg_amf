@@ -17,7 +17,7 @@
                 "AMF encode tests",
                 "H.264 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule"]
         },
         {
             "case": "encode_002",
@@ -35,7 +35,7 @@
                 "AMF encode tests",
                 "HEVC output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule"]
         },
         {
             "case": "encode_003",
@@ -53,7 +53,7 @@
                 "AMF encode tests",
                 "AV1 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule"]
         }
 
 

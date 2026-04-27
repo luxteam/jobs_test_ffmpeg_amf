@@ -60,7 +60,7 @@ class PSNRRule(Rule):
         )
 
     def should_be_executed(self):
-        return bool(self.case.get("input_video"))
+        return True
 
     def apply(self, data):
         psnr = data.get("psnr")
@@ -100,7 +100,7 @@ class SSIMRule(Rule):
         )
 
     def should_be_executed(self):
-        return bool(self.case.get("input_video"))
+        return True
 
     def apply(self, data):
         ssim = data.get("ssim")

@@ -89,7 +89,7 @@ def get_video_metadata(ffprobe_exe, video_path):
     Returns a dict (codec_name, width, height, avg_frame_rate, pix_fmt).
     """
     cmd = (f'"{ffprobe_exe}" -v quiet -select_streams v:0'
-           f' -show_entries stream=codec_name,width,height,avg_frame_rate,pix_fmt'
+           f' -show_entries stream=codec_name,width,height,r_frame_rate,avg_frame_rate,pix_fmt'
            f' -print_format json "{video_path}"')
     logger.info(f"Running ffprobe metadata: {cmd}")
     try:

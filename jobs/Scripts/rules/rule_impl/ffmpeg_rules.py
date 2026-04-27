@@ -295,14 +295,21 @@ class DecodeRule(Rule):
     def should_be_executed(self):
         return True
 
-    def _decode_check(self, ffmpeg_exe, output_video):
+    def _decode_check(self, ffmpeg_exe, output_video, log_path):
         cmd = (f'"{ffmpeg_exe}" -hide_banner -v error'
                f' -i "{output_video}" -map 0:v:0 -f null -')
         logger.info(f"Running decode check: {cmd}")
         try:
             result = subprocess.run(cmd, capture_output=True, text=True,
                                     timeout=300, shell=True)
-            return result.stderr.strip()
+            stderr = result.stderr.strip()
+            if stderr:
+                try:
+                    with open(log_path, "w", encoding="utf-8") as f:
+                        f.write(stderr)
+                except Exception as e:
+                    logger.warning(f"Could not write decode log: {e}")
+            return stderr
         except Exception as e:
             logger.error(f"Decode check error: {e}")
             return str(e)
@@ -312,11 +319,24 @@ class DecodeRule(Rule):
             logger.info("DecodeRule: skipped — output video not produced")
             return
 
-        decode_errors = self._decode_check(context["ffmpeg_exe"], context["output_video"])
+        decode_errors = self._decode_check(
+            context["ffmpeg_exe"], context["output_video"], context["decode_log"]
+        )
+
         if decode_errors:
+            results_dir = context.get("results_dir", "")
+            decode_log  = context["decode_log"]
+            if os.path.exists(decode_log):
+                self.json_content["decode_log"] = (
+                    os.path.relpath(decode_log, results_dir).replace("\\", "/")
+                )
             self.add_error(f"Decode errors detected: {decode_errors}")
         else:
             logger.info("DecodeRule: no decode errors")
+            self.json_content["message"].append({
+                "issue":       "No decode errors",
+                "description": "Decode check passed",
+            })
 
 
 class FrameCountRule(Rule):
@@ -377,3 +397,7 @@ class FrameCountRule(Rule):
             )
         else:
             logger.info(f"FrameCountRule: {actual} frames — OK")
+            self.json_content["message"].append({
+                "issue":       f"Frame count: {actual} frames — OK",
+                "description": "Frame count matches -frames:v value",
+            })

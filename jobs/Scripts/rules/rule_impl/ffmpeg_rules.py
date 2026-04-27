@@ -47,6 +47,7 @@ class PSNRRule(Rule):
     Checks PSNR (Peak Signal-to-Noise Ratio) between input and output video.
     PSNR below threshold indicates unacceptable quality degradation.
     Default threshold: 30.0 dB (overridable via case "psnr_threshold" field).
+    Skipped for cases without a reference input_video (e.g. lavfi-generated source).
     """
 
     DEFAULT_THRESHOLD = 30.0
@@ -59,7 +60,7 @@ class PSNRRule(Rule):
         )
 
     def should_be_executed(self):
-        return True
+        return bool(self.case.get("input_video"))
 
     def apply(self, data):
         psnr = data.get("psnr")
@@ -86,6 +87,7 @@ class SSIMRule(Rule):
     Checks SSIM (Structural Similarity Index) between input and output video.
     SSIM below threshold indicates unacceptable quality degradation.
     Range: 0.0 to 1.0. Default threshold: 0.9 (overridable via case "ssim_threshold" field).
+    Skipped for cases without a reference input_video (e.g. lavfi-generated source).
     """
 
     DEFAULT_THRESHOLD = 0.9
@@ -98,7 +100,7 @@ class SSIMRule(Rule):
         )
 
     def should_be_executed(self):
-        return True
+        return bool(self.case.get("input_video"))
 
     def apply(self, data):
         ssim = data.get("ssim")

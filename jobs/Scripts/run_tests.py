@@ -285,11 +285,12 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     report["script_info"] = case.get("description", [])
 
     # ---- 1. Resolve and verify input video ----
-    input_file = case.get("input_video") or default_input_video
-    input_video_path = os.path.join(video_samples_dir, input_file)
-    report["scene_name"] = input_file
+    input_file = case.get("input_video")
+    has_reference = bool(input_file) and "<input_video>" in case.get("keys", "")
+    input_video_path = os.path.join(video_samples_dir, input_file) if has_reference else None
+    report["scene_name"] = input_file or "lavfi"
 
-    if not os.path.exists(input_video_path):
+    if has_reference and not os.path.exists(input_video_path):
         report["test_status"] = "error"
         report["message"].append({
             "issue": f"Input video not found: {input_video_path}",
@@ -333,7 +334,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
 
     # ---- 4. Measure PSNR ----
     psnr = None
-    if os.path.exists(output_video):
+    if has_reference and os.path.exists(output_video):
         psnr = fu.measure_psnr(ffmpeg_exe, input_video_path, output_video, psnr_log)
         report["psnr"] = psnr
         report["psnr_log"] = os.path.relpath(psnr_log, _results_dir).replace("\\", "/")
@@ -341,7 +342,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     # ---- 5. Measure SSIM ----
     ssim = None
     ssim_log_path = os.path.join(case_output_dir, f"{case_name}_ssim.log")
-    if os.path.exists(output_video):
+    if has_reference and os.path.exists(output_video):
         ssim = fu.measure_ssim(ffmpeg_exe, input_video_path, output_video, ssim_log_path)
         report["ssim"] = ssim
         report["ssim_log"] = os.path.relpath(ssim_log_path, _results_dir).replace("\\", "/")
@@ -350,7 +351,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     # ffmpeg psnr stats log (written by measure_psnr) is parsed to find worst N
     # frames; cv2 seeks directly to those indices to save quad images.
     frames_dir = os.path.join(output_dir, FRAMES_DIR, case_name)
-    if os.path.exists(output_video):
+    if has_reference and os.path.exists(output_video):
         try:
             worst_frames = fu.extract_worst_frames(
                 input_video_path, output_video, frames_dir, count=5, psnr_log=psnr_log

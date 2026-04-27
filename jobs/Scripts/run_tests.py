@@ -320,15 +320,16 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     # psnr_log path is pre-defined here so PSNRRule writes it to a known location,
     # allowing frame extraction below to find it after rules complete.
     context = {
-        "ffmpeg_exe":    ffmpeg_exe,
-        "ffprobe_exe":   ffprobe_exe,
-        "input_video":   input_video_path,
-        "output_video":  output_video,
-        "returncode":    returncode,
-        "has_reference": has_reference,
-        "psnr_log":      os.path.join(case_output_dir, f"{case_name}_psnr.log"),
-        "ssim_log":      os.path.join(case_output_dir, f"{case_name}_ssim.log"),
-        "results_dir":   _results_dir,
+        "ffmpeg_exe":     ffmpeg_exe,
+        "ffprobe_exe":    ffprobe_exe,
+        "input_video":    input_video_path,
+        "output_video":   output_video,
+        "output_exists":  os.path.exists(output_video),
+        "returncode":     returncode,
+        "has_reference":  has_reference,
+        "psnr_log":       os.path.join(case_output_dir, f"{case_name}_psnr.log"),
+        "ssim_log":       os.path.join(case_output_dir, f"{case_name}_ssim.log"),
+        "results_dir":    _results_dir,
     }
 
     report["test_status"] = "passed"   # rules will downgrade if needed

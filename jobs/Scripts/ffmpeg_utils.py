@@ -6,9 +6,11 @@ Frame extraction strategy:
   - Parse log to find worst N frames by lowest psnr_avg
   - cv2 seeks directly to those frame indices to save quad images
     (input / output / diff_scaled / diff_thresh)
+
+Note: metric collection (metadata, PSNR, SSIM, decode check, frame count)
+lives in the corresponding rule classes in rules/rule_impl/ffmpeg_rules.py.
 """
 
-import json
 import logging
 import os
 import re
@@ -77,126 +79,6 @@ def run_conversion(ffmpeg_exe, input_video, output_video, case, log_path):
 
     logger.info(f"FFMPEG exit code: {result.returncode}")
     return result.returncode
-
-
-# ---------------------------------------------------------------------------
-# Metadata
-# ---------------------------------------------------------------------------
-
-def get_video_metadata(ffprobe_exe, video_path):
-    """
-    Use ffprobe to extract video stream metadata.
-    Returns a dict (codec_name, width, height, avg_frame_rate, pix_fmt).
-    """
-    cmd = (f'"{ffprobe_exe}" -v quiet -select_streams v:0'
-           f' -show_entries stream=codec_name,width,height,r_frame_rate,avg_frame_rate,pix_fmt'
-           f' -print_format json "{video_path}"')
-    logger.info(f"Running ffprobe metadata: {cmd}")
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True,
-                                timeout=60, shell=True)
-        data = json.loads(result.stdout)
-        stream = data.get("streams", [])[0]
-        logger.info(f"Metadata: codec={stream.get('codec_name')}, "
-                    f"{stream.get('width')}x{stream.get('height')}")
-        return stream
-    except Exception as e:
-        logger.error(f"ffprobe metadata error: {e}")
-        return {}
-
-
-# ---------------------------------------------------------------------------
-# PSNR / SSIM via ffmpeg filters (whole-video averages)
-# ---------------------------------------------------------------------------
-
-def measure_psnr(ffmpeg_exe, input_video, output_video, log_path):
-    """
-    Measure average PSNR between input and output using ffmpeg psnr filter.
-    Per-frame stats are written to log_path as a test artifact.
-    Returns float (dB) or None on failure.
-    """
-    log_dir  = os.path.dirname(log_path)
-    log_name = os.path.basename(log_path)
-    os.makedirs(log_dir, exist_ok=True)
-    cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
-           f' -lavfi "psnr=stats_file={log_name}" -f null -')
-    logger.info("Measuring PSNR (ffmpeg filter)")
-    try:
-        result = subprocess.run(cmd, stderr=subprocess.PIPE, text=True,
-                                timeout=300, shell=True, cwd=log_dir)
-        match = re.search(r"average:(\S+)", result.stderr)
-        if match:
-            val = match.group(1)
-            psnr = float("inf") if val == "inf" else float(val)
-            logger.info(f"PSNR average: {psnr}")
-            return psnr
-        logger.error("Could not parse PSNR")
-        return None
-    except Exception as e:
-        logger.error(f"PSNR error: {e}")
-        return None
-
-
-def measure_ssim(ffmpeg_exe, input_video, output_video, log_path):
-    """
-    Measure average SSIM between input and output using ffmpeg ssim filter.
-    Returns float (0.0-1.0) or None on failure.
-    """
-    cmd = f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}" -lavfi ssim -f null -'
-    logger.info("Measuring SSIM (ffmpeg filter)")
-    try:
-        result = subprocess.run(cmd, stderr=subprocess.PIPE, text=True,
-                                timeout=300, shell=True)
-        with open(log_path, "w", encoding="utf-8") as f:
-            f.write(result.stderr)
-        match = re.search(r"All:(\S+)", result.stderr)
-        if match:
-            ssim = float(match.group(1))
-            logger.info(f"SSIM All: {ssim}")
-            return ssim
-        logger.error("Could not parse SSIM")
-        return None
-    except Exception as e:
-        logger.error(f"SSIM error: {e}")
-        return None
-
-
-def decode_check(ffmpeg_exe, output_video):
-    """
-    Decode the output video with ffmpeg -v error and capture stderr.
-    Returns stderr string — empty string means no decode errors.
-    """
-    cmd = f'"{ffmpeg_exe}" -hide_banner -v error -i "{output_video}" -map 0:v:0 -f null -'
-    logger.info(f"Running decode check: {cmd}")
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300, shell=True)
-        return result.stderr.strip()
-    except Exception as e:
-        logger.error(f"Decode check error: {e}")
-        return str(e)
-
-
-def get_frame_count(ffprobe_exe, output_video):
-    """
-    Count actual decoded frames in the output video using ffprobe -count_frames.
-    Returns int or None on failure.
-    """
-    cmd = (f'"{ffprobe_exe}" -v error -count_frames -select_streams v:0'
-           f' -show_entries stream=nb_read_frames'
-           f' -of default=noprint_wrappers=1 "{output_video}"')
-    logger.info(f"Running frame count: {cmd}")
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300, shell=True)
-        match = re.search(r"nb_read_frames=(\d+)", result.stdout)
-        if match:
-            count = int(match.group(1))
-            logger.info(f"Frame count: {count}")
-            return count
-        logger.error("Could not parse nb_read_frames")
-        return None
-    except Exception as e:
-        logger.error(f"Frame count error: {e}")
-        return None
 
 
 # ---------------------------------------------------------------------------
@@ -273,7 +155,7 @@ def extract_worst_frames(input_video, output_video, out_dir, count=5, psnr_log=N
     Find the N frames with worst PSNR from the ffmpeg per-frame stats log,
     then use cv2 to seek directly to those frames and save quad images.
 
-    psnr_log — path to the stats file written by measure_psnr (required).
+    psnr_log — path to the stats file written by PSNRRule (required).
 
     Returns list of dicts sorted worst→best:
       [{frame_index, frame_number, mse, psnr, images: {input, output, diff_scaled, diff_thresh}}, ...]

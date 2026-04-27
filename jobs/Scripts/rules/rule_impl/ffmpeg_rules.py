@@ -1,7 +1,8 @@
+import json
 import os
 import re
+import subprocess
 
-import ffmpeg_utils as fu
 from rules.rule import Rule
 import logging
 
@@ -51,13 +52,33 @@ class MetadataRule(Rule):
     def should_be_executed(self):
         return "expected_metadata" in self.case and bool(self.case["expected_metadata"])
 
+    def _get_metadata(self, ffprobe_exe, video_path):
+        cmd = (f'"{ffprobe_exe}" -v quiet -select_streams v:0'
+               f' -show_entries stream=codec_name,width,height,r_frame_rate,avg_frame_rate,pix_fmt'
+               f' -print_format json "{video_path}"')
+        logger.info(f"Running ffprobe metadata: {cmd}")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True,
+                                    timeout=60, shell=True)
+            data = json.loads(result.stdout)
+            streams = data.get("streams", [])
+            if not streams:
+                logger.error(f"No video streams found in {video_path}")
+                return {}
+            stream = streams[0]
+            logger.info(f"Metadata: codec={stream.get('codec_name')}, "
+                        f"{stream.get('width')}x{stream.get('height')}")
+            return stream
+        except Exception as e:
+            logger.error(f"ffprobe metadata error: {e}")
+            return {}
+
     def apply(self, context):
-        output_video = context.get("output_video", "")
-        if not os.path.exists(output_video):
-            self.add_error("Output video not found — cannot verify metadata")
+        if not context.get("output_exists"):
+            logger.info("MetadataRule: skipped — output video not produced")
             return
 
-        actual = fu.get_video_metadata(context["ffprobe_exe"], output_video)
+        actual = self._get_metadata(context["ffprobe_exe"], context["output_video"])
         self.json_content["metadata"] = actual
 
         if actual:
@@ -89,8 +110,8 @@ class MetadataRule(Rule):
 class PSNRRule(Rule):
     """
     Measures PSNR between input and output video using ffmpeg psnr filter.
-    Writes per-frame stats to psnr_log (used later for worst-frame extraction).
-    Skipped automatically when has_reference is False (e.g. lavfi source).
+    Writes per-frame stats to psnr_log (used later by run_tests for worst-frame extraction).
+    Skipped when has_reference is False (e.g. lavfi source) or conversion failed.
     Default threshold: 30.0 dB (overridable via case "psnr_threshold" field).
     """
 
@@ -106,19 +127,44 @@ class PSNRRule(Rule):
     def should_be_executed(self):
         return True
 
+    def _measure_psnr(self, ffmpeg_exe, input_video, output_video, log_path):
+        log_dir  = os.path.dirname(log_path)
+        log_name = os.path.basename(log_path)
+        os.makedirs(log_dir, exist_ok=True)
+        cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
+               f' -lavfi "psnr=stats_file={log_name}" -f null -')
+        logger.info("Measuring PSNR (ffmpeg filter)")
+        try:
+            result = subprocess.run(cmd, stderr=subprocess.PIPE, text=True,
+                                    timeout=300, shell=True, cwd=log_dir)
+            match = re.search(r"average:(\S+)", result.stderr)
+            if match:
+                val  = match.group(1)
+                psnr = float("inf") if val == "inf" else float(val)
+                logger.info(f"PSNR average: {psnr}")
+                return psnr
+            logger.error("Could not parse PSNR")
+            return None
+        except Exception as e:
+            logger.error(f"PSNR error: {e}")
+            return None
+
     def apply(self, context):
         if not context.get("has_reference"):
             logger.info("PSNRRule: skipped — no reference input video (lavfi source)")
             return
 
-        output_video = context.get("output_video", "")
-        if not os.path.exists(output_video):
-            self.add_error("PSNR measurement failed — output video not found")
+        if not context.get("output_exists"):
+            logger.info("PSNRRule: skipped — output video not produced")
+            return
+
+        if context.get("returncode") != 0:
+            logger.info("PSNRRule: skipped — conversion failed, PSNR on corrupt output is not meaningful")
             return
 
         psnr_log = context["psnr_log"]
-        psnr = fu.measure_psnr(
-            context["ffmpeg_exe"], context["input_video"], output_video, psnr_log
+        psnr = self._measure_psnr(
+            context["ffmpeg_exe"], context["input_video"], context["output_video"], psnr_log
         )
         self.json_content["psnr"] = psnr
 
@@ -152,7 +198,7 @@ class PSNRRule(Rule):
 class SSIMRule(Rule):
     """
     Measures SSIM between input and output video using ffmpeg ssim filter.
-    Skipped automatically when has_reference is False (e.g. lavfi source).
+    Skipped when has_reference is False (e.g. lavfi source) or conversion failed.
     Range: 0.0 to 1.0. Default threshold: 0.9 (overridable via case "ssim_threshold" field).
     """
 
@@ -168,19 +214,42 @@ class SSIMRule(Rule):
     def should_be_executed(self):
         return True
 
+    def _measure_ssim(self, ffmpeg_exe, input_video, output_video, log_path):
+        cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
+               f' -lavfi ssim -f null -')
+        logger.info("Measuring SSIM (ffmpeg filter)")
+        try:
+            result = subprocess.run(cmd, stderr=subprocess.PIPE, text=True,
+                                    timeout=300, shell=True)
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.write(result.stderr)
+            match = re.search(r"All:(\S+)", result.stderr)
+            if match:
+                ssim = float(match.group(1))
+                logger.info(f"SSIM All: {ssim}")
+                return ssim
+            logger.error("Could not parse SSIM")
+            return None
+        except Exception as e:
+            logger.error(f"SSIM error: {e}")
+            return None
+
     def apply(self, context):
         if not context.get("has_reference"):
             logger.info("SSIMRule: skipped — no reference input video (lavfi source)")
             return
 
-        output_video = context.get("output_video", "")
-        if not os.path.exists(output_video):
-            self.add_error("SSIM measurement failed — output video not found")
+        if not context.get("output_exists"):
+            logger.info("SSIMRule: skipped — output video not produced")
+            return
+
+        if context.get("returncode") != 0:
+            logger.info("SSIMRule: skipped — conversion failed, SSIM on corrupt output is not meaningful")
             return
 
         ssim_log = context["ssim_log"]
-        ssim = fu.measure_ssim(
-            context["ffmpeg_exe"], context["input_video"], output_video, ssim_log
+        ssim = self._measure_ssim(
+            context["ffmpeg_exe"], context["input_video"], context["output_video"], ssim_log
         )
         self.json_content["ssim"] = ssim
 
@@ -226,13 +295,24 @@ class DecodeRule(Rule):
     def should_be_executed(self):
         return True
 
+    def _decode_check(self, ffmpeg_exe, output_video):
+        cmd = (f'"{ffmpeg_exe}" -hide_banner -v error'
+               f' -i "{output_video}" -map 0:v:0 -f null -')
+        logger.info(f"Running decode check: {cmd}")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True,
+                                    timeout=300, shell=True)
+            return result.stderr.strip()
+        except Exception as e:
+            logger.error(f"Decode check error: {e}")
+            return str(e)
+
     def apply(self, context):
-        output_video = context.get("output_video", "")
-        if not os.path.exists(output_video):
-            self.add_error("Output video not found — cannot perform decode check")
+        if not context.get("output_exists"):
+            logger.info("DecodeRule: skipped — output video not produced")
             return
 
-        decode_errors = fu.decode_check(context["ffmpeg_exe"], output_video)
+        decode_errors = self._decode_check(context["ffmpeg_exe"], context["output_video"])
         if decode_errors:
             self.add_error(f"Decode errors detected: {decode_errors}")
         else:
@@ -255,23 +335,45 @@ class FrameCountRule(Rule):
         )
 
     def should_be_executed(self):
-        return bool(re.search(r"-frames:v\s+(\d+)", self.case.get("keys", "")))
+        # Cache parsed value so apply() doesn't repeat the regex
+        match = re.search(r"-frames:v\s+(\d+)", self.case.get("keys", ""))
+        if match:
+            self._expected_frames = int(match.group(1))
+            return True
+        return False
+
+    def _get_frame_count(self, ffprobe_exe, output_video):
+        cmd = (f'"{ffprobe_exe}" -v error -count_frames -select_streams v:0'
+               f' -show_entries stream=nb_read_frames'
+               f' -of default=noprint_wrappers=1 "{output_video}"')
+        logger.info(f"Running frame count: {cmd}")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True,
+                                    timeout=300, shell=True)
+            match = re.search(r"nb_read_frames=(\d+)", result.stdout)
+            if match:
+                count = int(match.group(1))
+                logger.info(f"Frame count: {count}")
+                return count
+            logger.error("Could not parse nb_read_frames")
+            return None
+        except Exception as e:
+            logger.error(f"Frame count error: {e}")
+            return None
 
     def apply(self, context):
-        output_video = context.get("output_video", "")
-        if not os.path.exists(output_video):
-            self.add_error("Output video not found — cannot count frames")
+        if not context.get("output_exists"):
+            logger.info("FrameCountRule: skipped — output video not produced")
             return
 
-        match = re.search(r"-frames:v\s+(\d+)", self.case.get("keys", ""))
-        expected = int(match.group(1))
-
-        actual = fu.get_frame_count(context["ffprobe_exe"], output_video)
+        actual = self._get_frame_count(context["ffprobe_exe"], context["output_video"])
         if actual is None:
             self.add_error("Frame count could not be determined")
             return
 
-        if actual != expected:
-            self.add_error(f"Frame count mismatch: expected={expected}, actual={actual}")
+        if actual != self._expected_frames:
+            self.add_error(
+                f"Frame count mismatch: expected={self._expected_frames}, actual={actual}"
+            )
         else:
             logger.info(f"FrameCountRule: {actual} frames — OK")

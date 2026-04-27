@@ -317,6 +317,10 @@ class DecodeRule(Rule):
             self.add_error(f"Decode errors detected: {decode_errors}")
         else:
             logger.info("DecodeRule: no decode errors")
+            self.json_content["message"].append({
+                "issue":       "No decode errors",
+                "description": "Decode check passed",
+            })
 
 
 class FrameCountRule(Rule):

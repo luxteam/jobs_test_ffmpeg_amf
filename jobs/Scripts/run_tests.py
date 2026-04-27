@@ -127,7 +127,6 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "ffmpeg_conversion_log":    "",
         "psnr_log":                 "",
         "ssim_log":                 "",
-        "decode_log":               "",
     }
 
 
@@ -330,7 +329,6 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
         "has_reference":  has_reference,
         "psnr_log":       os.path.join(case_output_dir, f"{case_name}_psnr.log"),
         "ssim_log":       os.path.join(case_output_dir, f"{case_name}_ssim.log"),
-        "decode_log":     os.path.join(case_output_dir, f"{case_name}_decode.log"),
         "results_dir":    _results_dir,
     }
 

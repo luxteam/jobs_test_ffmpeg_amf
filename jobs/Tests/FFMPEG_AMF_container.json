@@ -1,0 +1,167 @@
+{
+    "cases": [
+
+        {
+            "case": "container_001",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "output_format": "mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 640,
+                "height": 360,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF container tests",
+                "H.264 output",
+                "mp4 output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "container_002",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "output_format": "mkv",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 640,
+                "height": 360,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF container tests",
+                "H.264 output",
+                "mkv output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "container_003",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "output_format": "ts",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 640,
+                "height": 360,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF container tests",
+                "H.264 output",
+                "ts output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "container_004",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "output_format": "mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 640,
+                "height": 360,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF container tests",
+                "HEVC output",
+                "mp4 output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "container_005",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "output_format": "mkv",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 640,
+                "height": 360,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF container tests",
+                "HEVC output",
+                "mkv output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "container_006",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "output_format": "ts",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 640,
+                "height": 360,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF container tests",
+                "HEVC output",
+                "ts output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "container_007",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
+            "output_format": "mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 640,
+                "height": 360,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF container tests",
+                "AV1 output",
+                "mkv output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "container_007",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
+            "output_format": "webm",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 640,
+                "height": 360,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF container tests",
+                "AV1 output",
+                "webm output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        }
+
+
+    ]
+}

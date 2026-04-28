@@ -295,7 +295,8 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
         return report
 
     # ---- 2. Run FFMPEG conversion ----
-    output_video   = os.path.join(case_output_dir, f"{case_name}_output.mp4")
+    output_format = case.get("output_format", "mp4")
+    output_video  = os.path.join(case_output_dir, f"{case_name}_output.{output_format}")
     conversion_log = os.path.join(case_output_dir, f"{case_name}_conversion.log")
     _results_dir   = os.path.join(output_dir, RESULTS_SUBDIR)
     report["ffmpeg_conversion_log"] = os.path.relpath(conversion_log, _results_dir).replace("\\", "/")

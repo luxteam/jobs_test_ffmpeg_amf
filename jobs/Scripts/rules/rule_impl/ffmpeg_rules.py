@@ -327,15 +327,23 @@ class DecodeRule(Rule):
             })
 
 
+# Maps output_format extension to the exact ffprobe format_name string.
+_FORMAT_NAME_MAP = {
+    "mp4":  "mov,mp4,m4a,3gp,3g2,mj2",
+    "mkv":  "matroska,webm",
+    "ts":   "mpegts",
+    "webm": "matroska,webm",
+}
+
+
 class FormatRule(Rule):
     """
     Verifies the output container format and duration via ffprobe -show_entries format.
-    Format check: ffprobe format_name must contain the expected extension
-                  (e.g. "mp4" in "mov,mp4,m4a,..."; "mkv" in "matroska,webm").
-    Duration check: if -frames:v N and rate=R are parseable from keys,
-                    expected_duration = N/R; actual must be within 1 frame (1/R s).
-                    Skipped when neither value is found in keys.
-    Skipped entirely when output video was not produced.
+    Format: maps output_format extension → ffprobe format_name token via _FORMAT_NAME_MAP
+            (e.g. "mkv" → "matroska" checked against "matroska,webm").
+    Duration: if -frames:v N and rate=R are parseable from keys,
+              checks actual duration is within 1 frame (1/R s) of N/R.
+    Skipped when output video was not produced.
     """
 
     def __init__(self, case, json_content):
@@ -374,52 +382,52 @@ class FormatRule(Rule):
         info = self._get_format_info(context["ffprobe_exe"], context["output_video"])
         self.json_content["format_info"] = info
 
-        expected_format = self.case.get("output_format", "mp4")
-        format_name = info.get("format_name", "")
+        # Format check
+        case_output_format = self.case.get("output_format", "mp4")
+        expected_output_format = _FORMAT_NAME_MAP.get(case_output_format, case_output_format)
+        actual_output_format = info.get("format_name", "")
 
-        if not format_name:
-            self.add_error("Could not retrieve format_name from ffprobe")
-        elif expected_format not in format_name:
-            self.add_error(
-                f"Format mismatch: expected '{expected_format}' in format_name, got '{format_name}'"
-            )
+        if actual_output_format != expected_output_format:
+            self.add_error(f"Format mismatch: expected '{expected_output_format}', got '{actual_output_format}'")
         else:
-            logger.info(f"FormatRule: format OK — '{format_name}' contains '{expected_format}'")
+            logger.info(f"FormatRule: format OK — {actual_output_format}")
             self.json_content["message"].append({
-                "issue":       f"Container format: {format_name}",
+                "issue":       f"Container format: {actual_output_format}",
                 "description": "Format check passed",
             })
 
-        keys = self.case.get("keys", "")
+        # Duration check
+        keys         = self.case.get("keys", "")
         frames_match = re.search(r"-frames:v\s+(\d+)", keys)
         rate_match   = re.search(r"rate=(\d+(?:\.\d+)?)", keys)
 
-        if frames_match and rate_match:
-            n    = int(frames_match.group(1))
-            rate = float(rate_match.group(1))
-            expected_duration = n / rate
-            tolerance         = 1.0 / rate
-
-            try:
-                actual_duration = float(info.get("duration", -1))
-            except (ValueError, TypeError):
-                actual_duration = -1
-
-            if actual_duration < 0:
-                self.add_error("Could not retrieve duration from ffprobe")
-            elif abs(actual_duration - expected_duration) > tolerance:
-                self.add_error(
-                    f"Duration mismatch: expected≈{expected_duration:.3f}s, "
-                    f"actual={actual_duration:.3f}s (tolerance={tolerance:.3f}s)"
-                )
-            else:
-                logger.info(f"FormatRule: duration OK — {actual_duration:.3f}s ≈ {expected_duration:.3f}s")
-                self.json_content["message"].append({
-                    "issue":       f"Duration: {actual_duration:.3f}s (expected: {expected_duration:.3f}s)",
-                    "description": "Duration check passed",
-                })
-        else:
+        if not (frames_match and rate_match):
             logger.info("FormatRule: duration check skipped — -frames:v or rate not found in keys")
+            return
+
+        n    = int(frames_match.group(1))
+        rate = float(rate_match.group(1))
+        expected_duration = n / rate
+        tolerance         = 1.0 / rate
+
+        try:
+            actual_duration = float(info.get("duration", -1))
+        except (ValueError, TypeError):
+            actual_duration = -1
+
+        if actual_duration < 0:
+            self.add_error("Could not retrieve duration from ffprobe")
+        elif abs(actual_duration - expected_duration) > tolerance:
+            self.add_error(
+                f"Duration mismatch: expected {expected_duration:.3f}s, "
+                f"actual={actual_duration:.3f}s (tolerance={tolerance:.3f}s)"
+            )
+        else:
+            logger.info(f"FormatRule: duration OK — {actual_duration:.3f}s ≈ {expected_duration:.3f}s")
+            self.json_content["message"].append({
+                "issue":       f"Duration: {actual_duration:.3f}s (expected: {expected_duration:.3f}s)",
+                "description": "Duration check passed",
+            })
 
 
 class FrameCountRule(Rule):

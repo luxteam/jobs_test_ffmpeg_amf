@@ -35,6 +35,9 @@ class ConversionSuccessRule(Rule):
             logger.info("ConversionSuccessRule: ffmpeg exited successfully")
 
 
+_STREAM_FIELDS = {"codec_name", "width", "height", "r_frame_rate", "avg_frame_rate", "pix_fmt"}
+
+
 class MetadataRule(Rule):
     """
     Runs ffprobe on the output video, records metadata in the report,
@@ -68,7 +71,7 @@ class MetadataRule(Rule):
             stream = streams[0]
             logger.info(f"Metadata: codec={stream.get('codec_name')}, "
                         f"{stream.get('width')}x{stream.get('height')}")
-            return stream
+            return {k: v for k, v in stream.items() if k in _STREAM_FIELDS}
         except Exception as e:
             logger.error(f"ffprobe metadata error: {e}")
             return {}
@@ -412,7 +415,7 @@ class FormatRule(Rule):
             else:
                 logger.info(f"FormatRule: duration OK — {actual_duration:.3f}s ≈ {expected_duration:.3f}s")
                 self.json_content["message"].append({
-                    "issue":       f"Duration: {actual_duration:.3f}s (expected≈{expected_duration:.3f}s)",
+                    "issue":       f"Duration: {actual_duration:.3f}s (expected: {expected_duration:.3f}s)",
                     "description": "Duration check passed",
                 })
         else:

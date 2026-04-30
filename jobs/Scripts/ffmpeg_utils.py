@@ -155,7 +155,7 @@ def extract_worst_frames(input_video, output_video, out_dir, count=5, psnr_log=N
     Find the N frames with worst PSNR from the ffmpeg per-frame stats log,
     then use cv2 to seek directly to those frames and save quad images.
 
-    psnr_log — path to the stats file written by PSNRRule (required).
+    psnr_log - path to the stats file written by PSNRRule (required).
 
     Returns list of dicts sorted worst→best:
       [{frame_index, frame_number, mse, psnr, images: {input, output, diff_scaled, diff_thresh}}, ...]

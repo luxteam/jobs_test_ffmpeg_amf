@@ -1,0 +1,198 @@
+{
+    "cases": [
+
+        {
+            "case": "framerate_001",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=24 -frames:v 48 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "r_frame_rate": "24/1",
+                "avg_frame_rate": "24/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "24 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_002",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=24 -frames:v 48 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "r_frame_rate": "24/1",
+                "avg_frame_rate": "24/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "24 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_003",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=24 -frames:v 48 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "r_frame_rate": "24/1",
+                "avg_frame_rate": "24/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "24 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_004",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "30 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_005",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "30 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_006",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "30 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_007",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=60 -frames:v 120 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "r_frame_rate": "60/1",
+                "avg_frame_rate": "60/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "60 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_008",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=60 -frames:v 120 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "r_frame_rate": "60/1",
+                "avg_frame_rate": "60/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "60 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_009",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=60 -frames:v 120 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "r_frame_rate": "60/1",
+                "avg_frame_rate": "60/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "60 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_010",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=120 -frames:v 240 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "r_frame_rate": "120/1",
+                "avg_frame_rate": "120/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "120 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_011",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=120 -frames:v 240 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "r_frame_rate": "120/1",
+                "avg_frame_rate": "120/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "120 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "framerate_012",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=120 -frames:v 240 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "r_frame_rate": "120/1",
+                "avg_frame_rate": "120/1"
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "120 FPS"
+            ],
+            "rules": ["metadata_rule"]
+        }
+
+    ]
+}

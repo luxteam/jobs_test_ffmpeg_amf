@@ -35,9 +35,6 @@ class ConversionSuccessRule(Rule):
             logger.info("ConversionSuccessRule: ffmpeg exited successfully")
 
 
-_STREAM_FIELDS = {"codec_name", "width", "height", "r_frame_rate", "avg_frame_rate", "pix_fmt"}
-
-
 class MetadataRule(Rule):
     """
     Runs ffprobe on the output video, records metadata in the report,
@@ -51,34 +48,41 @@ class MetadataRule(Rule):
             default_message="Converted video metadata does not match expected values",
             description="Validate ffprobe metadata of output video against test case expected_metadata"
         )
+        self.expected = self.case.get("expected_metadata", {})
 
     def should_be_executed(self):
         return "expected_metadata" in self.case and bool(self.case["expected_metadata"])
 
     def _get_metadata(self, ffprobe_exe, video_path):
-        cmd = (f'"{ffprobe_exe}" -v quiet -select_streams v:0'
-               f' -show_entries stream=codec_name,width,height,r_frame_rate,avg_frame_rate,pix_fmt'
+        fields = ",".join(self.expected.keys())
+        cmd = (f'"{ffprobe_exe}" -v error -select_streams v:0'
+               f' -show_entries stream={fields}'
                f' -print_format json "{video_path}"')
         logger.info(f"Running ffprobe metadata: {cmd}")
         try:
             result = subprocess.run(cmd, capture_output=True, text=True,
                                     timeout=60, shell=True)
+            if result.stderr:
+                logger.warning(f"ffprobe stderr: {result.stderr.strip()}")
+                self.json_content["message"].append({
+                    "issue":       f"ffprobe stderr: {result.stderr.strip()}",
+                    "description": "ffprobe reported errors while reading metadata"
+                })
             data = json.loads(result.stdout)
             streams = data.get("streams", [])
             if not streams:
                 logger.error(f"No video streams found in {video_path}")
                 return {}
             stream = streams[0]
-            logger.info(f"Metadata: codec={stream.get('codec_name')}, "
-                        f"{stream.get('width')}x{stream.get('height')}")
-            return {k: v for k, v in stream.items() if k in _STREAM_FIELDS}
+            logger.info(f"Metadata received")
+            return {k: v for k, v in stream.items() if k in self.expected}
         except Exception as e:
             logger.error(f"ffprobe metadata error: {e}")
             return {}
 
     def apply(self, context):
         if not context.get("output_exists"):
-            logger.info("MetadataRule: skipped — output video not produced")
+            logger.info("MetadataRule: skipped - output video not produced")
             return
 
         actual = self._get_metadata(context["ffprobe_exe"], context["output_video"])
@@ -88,25 +92,24 @@ class MetadataRule(Rule):
             meta_parts = [f"{k}: {v}" for k, v in actual.items()]
             self.json_content["message"].append({
                 "issue":       "Output video metadata: " + ", ".join(meta_parts),
-                "description": "ffprobe output",
+                "description": "ffprobe output"
             })
-
-        expected = self.case.get("expected_metadata", {})
-        all_ok = True
-        for field, expected_value in expected.items():
+        
+        metadata_exists = True
+        for field, expected_value in self.expected.items():
             actual_value = actual.get(field)
             if actual_value is None:
                 self.add_error(
                     f"Metadata field '{field}' not found in output video. Expected: {expected_value}"
                 )
-                all_ok = False
+                metadata_exists = False
             elif str(actual_value) != str(expected_value):
                 self.add_error(
                     f"Metadata mismatch for '{field}': expected={expected_value}, actual={actual_value}"
                 )
-                all_ok = False
+                metadata_exists = False
 
-        if all_ok:
+        if metadata_exists:
             logger.info("MetadataRule: all metadata fields match")
 
 
@@ -154,15 +157,15 @@ class PSNRRule(Rule):
 
     def apply(self, context):
         if not context.get("has_reference"):
-            logger.info("PSNRRule: skipped — no reference input video (lavfi source)")
+            logger.info("PSNRRule: skipped - no reference input video (lavfi source)")
             return
 
         if not context.get("output_exists"):
-            logger.info("PSNRRule: skipped — output video not produced")
+            logger.info("PSNRRule: skipped - output video not produced")
             return
 
         if context.get("returncode") != 0:
-            logger.info("PSNRRule: skipped — conversion failed, PSNR on corrupt output is not meaningful")
+            logger.info("PSNRRule: skipped - conversion failed, PSNR on corrupt output is not meaningful")
             return
 
         psnr_log = context["psnr_log"]
@@ -180,7 +183,7 @@ class PSNRRule(Rule):
         threshold = self.case.get("psnr_threshold", self.DEFAULT_THRESHOLD)
 
         if psnr is None:
-            self.add_error("PSNR measurement failed — no value returned by ffmpeg")
+            self.add_error("PSNR measurement failed - no value returned by ffmpeg")
             return
 
         if psnr == float("inf"):
@@ -190,11 +193,11 @@ class PSNRRule(Rule):
                 f"Unacceptable PSNR: {psnr:.2f} dB (threshold: {threshold} dB)"
             )
         else:
-            logger.info(f"PSNRRule: PSNR={psnr:.2f} dB >= threshold={threshold} dB — OK")
+            logger.info(f"PSNRRule: PSNR={psnr:.2f} dB >= threshold={threshold} dB - OK")
 
         self.json_content["message"].append({
             "issue":       f"PSNR: {psnr:.2f} dB",
-            "description": "Quality metrics",
+            "description": "Quality metrics"
         })
 
 
@@ -239,15 +242,15 @@ class SSIMRule(Rule):
 
     def apply(self, context):
         if not context.get("has_reference"):
-            logger.info("SSIMRule: skipped — no reference input video (lavfi source)")
+            logger.info("SSIMRule: skipped - no reference input video (lavfi source)")
             return
 
         if not context.get("output_exists"):
-            logger.info("SSIMRule: skipped — output video not produced")
+            logger.info("SSIMRule: skipped - output video not produced")
             return
 
         if context.get("returncode") != 0:
-            logger.info("SSIMRule: skipped — conversion failed, SSIM on corrupt output is not meaningful")
+            logger.info("SSIMRule: skipped - conversion failed, SSIM on corrupt output is not meaningful")
             return
 
         ssim_log = context["ssim_log"]
@@ -265,7 +268,7 @@ class SSIMRule(Rule):
         threshold = self.case.get("ssim_threshold", self.DEFAULT_THRESHOLD)
 
         if ssim is None:
-            self.add_error("SSIM measurement failed — no value returned by ffmpeg")
+            self.add_error("SSIM measurement failed - no value returned by ffmpeg")
             return
 
         if ssim < threshold:
@@ -273,11 +276,11 @@ class SSIMRule(Rule):
                 f"Unacceptable SSIM: {ssim:.4f} (threshold: {threshold})"
             )
         else:
-            logger.info(f"SSIMRule: SSIM={ssim:.4f} >= threshold={threshold} — OK")
+            logger.info(f"SSIMRule: SSIM={ssim:.4f} >= threshold={threshold} - OK")
 
         self.json_content["message"].append({
             "issue":       f"SSIM: {ssim:.4f}",
-            "description": "Quality metrics",
+            "description": "Quality metrics"
         })
 
 
@@ -312,7 +315,7 @@ class DecodeRule(Rule):
 
     def apply(self, context):
         if not context.get("output_exists"):
-            logger.info("DecodeRule: skipped — output video not produced")
+            logger.info("DecodeRule: skipped - output video not produced")
             return
 
         decode_errors = self._decode_check(context["ffmpeg_exe"], context["output_video"])
@@ -323,7 +326,7 @@ class DecodeRule(Rule):
             logger.info("DecodeRule: no decode errors")
             self.json_content["message"].append({
                 "issue":       "No decode errors",
-                "description": "Decode check passed",
+                "description": "Decode check passed"
             })
 
 
@@ -338,11 +341,13 @@ _FORMAT_NAME_MAP = {
 
 class FormatRule(Rule):
     """
-    Verifies the output container format and duration via ffprobe -show_entries format.
-    Format: maps output_format extension → ffprobe format_name token via _FORMAT_NAME_MAP
-            (e.g. "mkv" → "matroska" checked against "matroska,webm").
+    Verifies the output container format, duration, and bitrate via ffprobe -show_entries format.
+    Format:   maps output_format extension → ffprobe format_name string via _FORMAT_NAME_MAP
+              (e.g. "mkv" → "matroska" checked against "matroska,webm").
     Duration: if -frames:v N and rate=R are parseable from keys,
               checks actual duration is within 1 frame (1/R s) of N/R.
+    Bitrate:  if -b:v is present, checks actual ± 10% of target; if -maxrate is present,
+              checks actual does not exceed it. Both skipped if neither flag is in keys.
     Skipped when output video was not produced.
     """
 
@@ -357,12 +362,18 @@ class FormatRule(Rule):
         return True
 
     def _get_format_info(self, ffprobe_exe, output_video):
-        cmd = (f'"{ffprobe_exe}" -v error -show_entries format=format_name,duration,size'
+        cmd = (f'"{ffprobe_exe}" -v error -show_entries format=format_name,duration,size,bit_rate'
                f' -of default=noprint_wrappers=1 "{output_video}"')
         logger.info(f"Running format info: {cmd}")
         try:
             result = subprocess.run(cmd, capture_output=True, text=True,
                                     timeout=60, shell=True)
+            if result.stderr:
+                logger.warning(f"ffprobe stderr: {result.stderr.strip()}")
+                self.json_content["message"].append({
+                    "issue":       f"ffprobe stderr: {result.stderr.strip()}",
+                    "description": "ffprobe reported errors while reading format info"
+                })
             info = {}
             for line in result.stdout.splitlines():
                 if "=" in line:
@@ -376,7 +387,7 @@ class FormatRule(Rule):
 
     def apply(self, context):
         if not context.get("output_exists"):
-            logger.info("FormatRule: skipped — output video not produced")
+            logger.info("FormatRule: skipped - output video not produced")
             return
 
         info = self._get_format_info(context["ffprobe_exe"], context["output_video"])
@@ -390,44 +401,114 @@ class FormatRule(Rule):
         if actual_output_format != expected_output_format:
             self.add_error(f"Format mismatch: expected '{expected_output_format}', got '{actual_output_format}'")
         else:
-            logger.info(f"FormatRule: format OK — {actual_output_format}")
+            logger.info(f"FormatRule: format OK - {actual_output_format}")
             self.json_content["message"].append({
                 "issue":       f"Container format: {actual_output_format}",
-                "description": "Format check passed",
+                "description": "Format check passed"
             })
 
-        # Duration check
+        # Duration and bitrate check
         keys         = self.case.get("keys", "")
         frames_match = re.search(r"-frames:v\s+(\d+)", keys)
         rate_match   = re.search(r"rate=(\d+(?:\.\d+)?)", keys)
-
-        if not (frames_match and rate_match):
-            logger.info("FormatRule: duration check skipped — -frames:v or rate not found in keys")
-            return
-
-        n    = int(frames_match.group(1))
-        rate = float(rate_match.group(1))
-        expected_duration = n / rate
-        tolerance         = 1.0 / rate
+        bitrate_in_keys = (re.search(r"-b:v\s+(\d+)([kKmM]?)", keys))
+        mbitrate_in_keys = (re.search(r"-maxrate\s+(\d+)([kKmM]?)", keys))
+        if bitrate_in_keys:
+            value = int(bitrate_in_keys.group(1))
+            unit = bitrate_in_keys.group(2).lower()
+            multiplier = {
+                "": 1,
+                "k": 1000,
+                "m": 1000000
+                }[unit]
+            expected_bitrate = value * multiplier
+            case_bitrate_tolerance = self.case.get("bitrate_tolerance", 0.5)
+            bitrate_tolerance = case_bitrate_tolerance*expected_bitrate
+        else:
+            expected_bitrate = None
+        if mbitrate_in_keys:
+            value = int(mbitrate_in_keys.group(1))
+            unit = mbitrate_in_keys.group(2).lower()
+            multiplier = {
+                "": 1,
+                "k": 1000,
+                "m": 1000000
+                }[unit]
+            max_bitrate = value * multiplier
+        else:
+            max_bitrate = None
 
         try:
             actual_duration = float(info.get("duration", -1))
         except (ValueError, TypeError):
             actual_duration = -1
 
-        if actual_duration < 0:
-            self.add_error("Could not retrieve duration from ffprobe")
-        elif abs(actual_duration - expected_duration) > tolerance:
-            self.add_error(
-                f"Duration mismatch: expected {expected_duration:.3f}s, "
-                f"actual={actual_duration:.3f}s (tolerance={tolerance:.3f}s)"
-            )
-        else:
-            logger.info(f"FormatRule: duration OK — {actual_duration:.3f}s ≈ {expected_duration:.3f}s")
+        try:
+            actual_bitrate = float(info.get("bit_rate", -1))
+        except (ValueError, TypeError):
+            actual_bitrate = -1
+
+        if not (frames_match and rate_match):
+            logger.info("FormatRule: duration check skipped - -frames:v or rate not found in keys")
             self.json_content["message"].append({
-                "issue":       f"Duration: {actual_duration:.3f}s (expected: {expected_duration:.3f}s)",
-                "description": "Duration check passed",
+                "issue":       f"Duration: {actual_duration:.3f}s",
+                "description": "Duration check skipped — no -frames:v or rate in keys"
             })
+        
+        if expected_bitrate is None and max_bitrate is None:
+            logger.info("FormatRule: bitrate check skipped - -b:v and -maxrate not found in keys")
+            self.json_content["message"].append({
+                "issue":       f"Bitrate: {actual_bitrate}",
+                "description": "Bitrate check skipped — no -b:v and -maxrate in keys"
+            })
+
+        if not (frames_match and rate_match) and expected_bitrate is None and max_bitrate is None:
+            return
+
+        if (frames_match and rate_match):
+            n    = int(frames_match.group(1))
+            rate = float(rate_match.group(1))
+            expected_duration = n / rate
+            duration_tolerance = 1.0 / rate
+
+            if actual_duration < 0:
+                self.add_error("Could not retrieve duration from ffprobe")
+            elif abs(actual_duration - expected_duration) > duration_tolerance:
+                self.add_error(
+                    f"Duration mismatch: expected {expected_duration:.3f}s, "
+                    f"actual={actual_duration:.3f}s (tolerance={duration_tolerance:.3f}s)"
+                )
+            else:
+                logger.info(f"FormatRule: duration OK - {actual_duration:.3f}s - {expected_duration:.3f}s")
+                self.json_content["message"].append({
+                    "issue":       f"Duration: {actual_duration:.3f}s (expected: {expected_duration:.3f}s)",
+                    "description": "Duration check passed"
+                })
+
+        if (expected_bitrate or max_bitrate):
+            if actual_bitrate < 0:
+                self.add_error("Could not retrieve bitrate from ffprobe")
+            elif expected_bitrate is not None and abs(actual_bitrate - expected_bitrate) > bitrate_tolerance:
+                self.add_error(
+                    f"Bitrate mismatch: expected bitrate {expected_bitrate}, "
+                    f"actual={actual_bitrate} (tolerance={bitrate_tolerance})"
+                )
+            elif max_bitrate is not None and actual_bitrate > max_bitrate:
+                self.add_error(
+                    f"Bitrate mismatch: expected max bitrate {max_bitrate}, "
+                    f"actual={actual_bitrate}"
+                )
+            else:
+                expected_bitrate_values = []
+                if expected_bitrate is not None:
+                    expected_bitrate_values.append(f"Bitrate - {expected_bitrate}")
+                if max_bitrate is not None:
+                    expected_bitrate_values.append(f"Max bitrate - {max_bitrate}")
+                logger.info(f"FormatRule: bitrate OK - {actual_bitrate} - {max_bitrate}")
+                self.json_content["message"].append({
+                    "issue":       f"Bitrate: {actual_bitrate} (expected:{', '.join(expected_bitrate_values)}, tolerance={bitrate_tolerance})",
+                    "description": "Bitrate check passed"
+                })
 
 
 class FrameCountRule(Rule):
@@ -474,7 +555,7 @@ class FrameCountRule(Rule):
 
     def apply(self, context):
         if not context.get("output_exists"):
-            logger.info("FrameCountRule: skipped — output video not produced")
+            logger.info("FrameCountRule: skipped - output video not produced")
             return
 
         actual = self._get_frame_count(context["ffprobe_exe"], context["output_video"])
@@ -487,8 +568,8 @@ class FrameCountRule(Rule):
                 f"Frame count mismatch: expected={self._expected_frames}, actual={actual}"
             )
         else:
-            logger.info(f"FrameCountRule: {actual} frames — OK")
+            logger.info(f"FrameCountRule: {actual} frames - OK")
             self.json_content["message"].append({
-                "issue":       f"Frame count: {actual} frames — OK",
-                "description": "Frame count matches -frames:v value",
+                "issue":       f"Frame count: {actual} frames - OK",
+                "description": "Frame count matches -frames:v value"
             })

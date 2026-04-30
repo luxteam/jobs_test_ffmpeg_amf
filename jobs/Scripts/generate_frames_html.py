@@ -173,7 +173,7 @@ def _render_messages(messages):
             desc = m.get("description", "")
             is_warn = text.startswith("[Warning]")
             css = "msg-warn" if is_warn else "msg-err"
-            suffix = f' <span style="color:#555">— {desc}</span>' if desc else ""
+            suffix = f' <span style="color:#555">- {desc}</span>' if desc else ""
             items.append(f'<div class="{css}">&#9654; {text}{suffix}</div>')
         else:
             items.append(f'<div class="msg-err">&#9654; {m}</div>')
@@ -251,7 +251,7 @@ def _build_case_html(report):
     render_time = report.get("render_time", 0.0)
     messages    = report.get("message", [])
     metadata    = report.get("metadata", {})
-    cmd         = report.get("ffmpeg_command", "—")
+    cmd         = report.get("ffmpeg_command", "-")
     worst_frames = report.get("worst_frames", [])
 
     psnr_str = f"{psnr_val:.2f} dB" if isinstance(psnr_val, (int, float)) else "N/A"

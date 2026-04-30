@@ -43,7 +43,7 @@ class RulesProcessor:
             if rule_name in RULES:
                 self.rules.append(RULES[rule_name](case, json_content))
             else:
-                logger.warning(f"Unknown rule '{rule_name}' in case '{case['case']}' — skipping")
+                logger.warning(f"Unknown rule '{rule_name}' in case '{case['case']}' - skipping")
 
     def process(self, context):
         """

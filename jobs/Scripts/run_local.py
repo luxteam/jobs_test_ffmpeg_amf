@@ -1,5 +1,5 @@
 """
-Local runner for FFMPEG AMF tests — no Jenkins, no NAS required.
+Local runner for FFMPEG AMF tests - no Jenkins, no NAS required.
 
 Mirrors the Jenkins pipeline stages exactly:
   Stage 1  Checkout      →  (not needed locally; scripts are already present)
@@ -18,7 +18,7 @@ DIFFERENCE TABLE  (Jenkins ↔ Local)
                      (xcopy'd from NAS)              (local directory, no copy)
  video_samples       --video_samples NAS\\VideoSamples  local_config.json
                      passed to run_tests.py          "video_samples_path" dir
- input video         per-case "input_video" field    same — each case resolves
+ input video         per-case "input_video" field    same - each case resolves
                      resolved inside run_tests.py    its own file from video_samples
  output dir          WORKSPACE\\summaryTestResults   output_base\\YYYYMMDD_HHMMSS_<pack>
  jobs_launcher       checked out as submodule        optional; set "jobs_launcher_path"
@@ -26,7 +26,7 @@ DIFFERENCE TABLE  (Jenkins ↔ Local)
  artifacts           archiveArtifacts in workspace   all files in output dir
 ────────────────────────────────────────────────────────────────────────────
 
-Usage (all options are optional — defaults come from local_config.json):
+Usage (all options are optional - defaults come from local_config.json):
 
   # Use local_config.json next to this script (or two levels up):
   python run_local.py
@@ -65,7 +65,7 @@ SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT   = os.path.abspath(os.path.join(SCRIPTS_DIR, "..", ".."))
 TESTS_DIR   = os.path.join(REPO_ROOT, "jobs", "Tests")
 
-# Shared modules live in the same Scripts dir — add to path so imports work
+# Shared modules live in the same Scripts dir - add to path so imports work
 if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
@@ -144,7 +144,7 @@ def parse_args():
     )
     p.add_argument("--config",        default=None,
                    help="Path to local_config.json (auto-detected if omitted)")
-    # Overrides — all optional; fall back to config values
+    # Overrides - all optional; fall back to config values
     p.add_argument("--build_path",    default=None,
                    help="Path to ffmpeg build dir (overrides local_config.json)")
     p.add_argument("--video_samples", default=None,
@@ -196,14 +196,14 @@ def _run_build_reports(jobs_launcher_path, results_dir, pack_name):
     """
     bat = os.path.join(jobs_launcher_path, "build_reports.bat")
     if not os.path.isfile(bat):
-        _warn(f"build_reports.bat not found in: {jobs_launcher_path} — skipping")
+        _warn(f"build_reports.bat not found in: {jobs_launcher_path} - skipping")
         return False
 
     cmd = [
         bat,
         results_dir,
         "FFMPEG_AMF",
-        "local",          # commit SHA — not meaningful locally
+        "local",          # commit SHA - not meaningful locally
         "local",          # branch
         "Local run",      # commit message
         pack_name,
@@ -211,7 +211,7 @@ def _run_build_reports(jobs_launcher_path, results_dir, pack_name):
     _info(f"Running: {' '.join(cmd)}")
     result = subprocess.run(cmd, cwd=jobs_launcher_path)
     if result.returncode != 0:
-        _warn("build_reports.bat returned non-zero — summary/compare HTML may be incomplete")
+        _warn("build_reports.bat returned non-zero - summary/compare HTML may be incomplete")
         return False
     return True
 
@@ -223,7 +223,7 @@ def _run_build_reports(jobs_launcher_path, results_dir, pack_name):
 def main():
     cli = parse_args()
 
-    _print_header("FFMPEG AMF  —  Local Test Runner")
+    _print_header("FFMPEG AMF  -  Local Test Runner")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     # ── Stage 1: Load config ─────────────────────────────────────────────
@@ -239,7 +239,7 @@ def main():
             _fail(f"Failed to parse {config_path}: {e}")
             sys.exit(1)
     else:
-        _warn("No local_config.json found — relying entirely on CLI arguments")
+        _warn("No local_config.json found - relying entirely on CLI arguments")
 
     # Merge: CLI overrides config
     build_path       = cli.build_path    or config.get("build_path", "")
@@ -341,7 +341,7 @@ def main():
         if exit_code == 0:
             _ok("All test cases passed")
         else:
-            _fail("One or more test cases failed — check run_tests.log")
+            _fail("One or more test cases failed - check run_tests.log")
         overall_exit = max(overall_exit, exit_code)
 
         # ── Stage 4: Generate frame comparison HTML ──────────────────────
@@ -355,7 +355,7 @@ def main():
 
         # ── Stage 5: build_reports.bat (optional) ────────────────────────
         # ┌ DIFFERENCE: Jenkins always runs this (jobs_launcher submodule is
-        # │ always checked out). Locally it is optional — only if
+        # │ always checked out). Locally it is optional - only if
         # │ jobs_launcher_path is set and the repo exists.
         # └──────────────────────────────────────────────────────────────────
         _print_stage(5, "Generate summary/compare reports (jobs_launcher)")
@@ -364,7 +364,7 @@ def main():
             if success:
                 _ok("summary_report.html + compare_report.html generated")
         else:
-            _warn("jobs_launcher_path not set or not found — skipping summary/compare HTML")
+            _warn("jobs_launcher_path not set or not found - skipping summary/compare HTML")
             _info("Set 'jobs_launcher_path' in local_config.json to enable this step")
 
     # ── Stage 6: Final summary ───────────────────────────────────────────

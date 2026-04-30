@@ -48,7 +48,7 @@ FRAMES_DIR = "Color"
 def setup_logging(output_dir, logger_name=__name__):
     """
     Configure file + stdout logging.
-    Safe to call multiple times — adds handlers only once per logger name.
+    Safe to call multiple times - adds handlers only once per logger name.
     """
     os.makedirs(output_dir, exist_ok=True)
     log_path = os.path.join(output_dir, "run_tests.log")
@@ -114,6 +114,7 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "psnr":                     None,
         "ssim":                     None,
         "metadata":                 {},
+        "format_info":              {},
         "ffmpeg_command":           "",
         # ffmpeg_keys: the raw "keys" string from the test case (shown in Info column)
         "ffmpeg_keys":              case.get("keys", ""),
@@ -122,7 +123,7 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         # screens_collection: populated after frame extraction for the Frames carousel
         "screens_collection":       [],
         # Log paths stored relative to results-data/ (NOT in POSSIBLE_JSON_LOG_KEYS,
-        # so not path-rewritten — same pattern as streaming_sdk server_log/client_log).
+        # so not path-rewritten - same pattern as streaming_sdk server_log/client_log).
         # render_log is left empty to avoid its path-rewriting side-effects.
         "ffmpeg_conversion_log":    "",
         "psnr_log":                 "",
@@ -137,7 +138,7 @@ def write_case_report(output_dir, report):
 
 
 def write_test_cases_json(output_dir, cases):
-    """Write test_cases.json — jobs_launcher needs this for report generation."""
+    """Write test_cases.json - jobs_launcher needs this for report generation."""
     path = os.path.join(output_dir, "test_cases.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(cases, f, indent=4)
@@ -205,7 +206,7 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
         "driver_version": "",
         "driver":         "",
         "newest_driver":  "",
-        # "cpu" omitted intentionally — columns_template.html hides the CPU line
+        # "cpu" omitted intentionally - columns_template.html hides the CPU line
         # when machine_info.cpu is undefined (streaming_sdk report_type branch)
         "cpu_count":      str(os.cpu_count() or 0),
         "ram":            ram_gb,
@@ -222,7 +223,7 @@ def write_session_report(output_dir, all_reports, test_group, gpu_name):
 
     # jobs_launcher hardcodes results[test_package][""] (empty string) as the
     # second-level config key in build_summary_report (line 967-971).
-    # result_path must contain at least one dash — build_summary_reports splits
+    # result_path must contain at least one dash - build_summary_reports splits
     # it on "-" to populate summary["result_path"] (line 1664-1665).
     session = {
         "machine_info": machine_info,
@@ -390,7 +391,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
 
 
 # ---------------------------------------------------------------------------
-# Core runner — called by both CLI (main) and run_local.py (run)
+# Core runner - called by both CLI (main) and run_local.py (run)
 # ---------------------------------------------------------------------------
 
 def run(args):

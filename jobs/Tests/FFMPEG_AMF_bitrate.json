@@ -1,0 +1,150 @@
+{
+    "cases": [
+
+        {
+            "case": "bitrate_001",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v h264_amf -rc cbr -b:v 4M -maxrate 4M -bufsize 8M -pix_fmt nv12",
+            "bitrate_tolerance": 0.1,
+            "expected_metadata": {
+                "codec_name": "h264"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "CBR",
+                "H.264 output",
+                "Bitrate 4M",
+                "Max Bitrate 4M"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "bitrate_002",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v hevc_amf -rc cbr -b:v 4M -maxrate 4M -bufsize 8M -pix_fmt nv12",
+            "bitrate_tolerance": 0.1,
+            "expected_metadata": {
+                "codec_name": "hevc"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "CBR",
+                "HEVC output",
+                "Bitrate 4M",
+                "Max Bitrate 4M"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "bitrate_003",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v av1_amf -rc cbr -b:v 4M -maxrate 4M -bufsize 8M -pix_fmt nv12",
+            "bitrate_tolerance": 0.1,
+            "expected_metadata": {
+                "codec_name": "av1"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "CBR",
+                "AV1 output",
+                "Bitrate 4M",
+                "Max Bitrate 4M"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "bitrate_004",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v h264_amf -rc vbr_peak -b:v 3M -maxrate 5M -bufsize 10M -pix_fmt nv12",
+            "bitrate_tolerance": 0.5,
+            "expected_metadata": {
+                "codec_name": "h264"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "VBR Peak",
+                "H.264 output",
+                "Bitrate 3M",
+                "Max Bitrate 5M"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "bitrate_005",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v hevc_amf -rc vbr_peak -b:v 3M -maxrate 5M -bufsize 10M -pix_fmt nv12",
+            "bitrate_tolerance": 0.5,
+            "expected_metadata": {
+                "codec_name": "hevc"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "VBR Peak",
+                "HEVC output",
+                "Bitrate 3M",
+                "Max Bitrate 5M"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "bitrate_006",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v av1_amf -rc vbr_peak -b:v 3M -maxrate 5M -bufsize 10M -pix_fmt nv12",
+            "bitrate_tolerance": 0.5,
+            "expected_metadata": {
+                "codec_name": "av1"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "VBR Peak",
+                "AV1 output",
+                "Bitrate 3M",
+                "Max Bitrate 5M"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "bitrate_007",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v h264_amf -rc cqp -qp_i 22 -qp_p 22 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "CQP",
+                "H.264 output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "bitrate_008",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v hevc_amf -rc cqp -qp_i 22 -qp_p 22 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "CQP",
+                "HEVC output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        },
+        {
+            "case": "bitrate_009",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v av1_amf -rc cqp -qp_i 22 -qp_p 22 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1"
+            },
+            "description": [
+                "AMF bitrate tests",
+                "CQP",
+                "AV1 output"
+            ],
+            "rules": ["metadata_rule","format_rule"]
+        }
+
+    ]
+}

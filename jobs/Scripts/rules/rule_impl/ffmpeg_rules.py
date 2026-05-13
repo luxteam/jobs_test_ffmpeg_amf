@@ -38,7 +38,9 @@ class ConversionSuccessRule(Rule):
 class MetadataRule(Rule):
     """
     Runs ffprobe on the output video, records metadata in the report,
-    then checks that each field in expected_metadata matches.
+    then checks that each field in expected_metadata matches (always v:0).
+    If "stream" and "expected_metadata_for_stream" are present in the case,
+    also runs ffprobe on that stream selector (e.g. "a:0") and checks those fields.
     Reports each mismatched field individually.
     """
 
@@ -48,17 +50,19 @@ class MetadataRule(Rule):
             default_message="Converted video metadata does not match expected values",
             description="Validate ffprobe metadata of output video against test case expected_metadata"
         )
-        self.expected = self.case.get("expected_metadata", {})
+        self.expected        = self.case.get("expected_metadata", {})
+        self.stream          = self.case.get("stream")
+        self.expected_stream = self.case.get("expected_metadata_for_stream", {})
 
     def should_be_executed(self):
         return "expected_metadata" in self.case and bool(self.case["expected_metadata"])
 
-    def _get_metadata(self, ffprobe_exe, video_path):
-        fields = ",".join(self.expected.keys())
-        cmd = (f'"{ffprobe_exe}" -v error -select_streams v:0'
+    def _get_metadata(self, ffprobe_exe, video_path, stream_selector, fields_dict):
+        fields = ",".join(fields_dict.keys())
+        cmd = (f'"{ffprobe_exe}" -v error -select_streams {stream_selector}'
                f' -show_entries stream={fields}'
                f' -print_format json "{video_path}"')
-        logger.info(f"Running ffprobe metadata: {cmd}")
+        logger.info(f"Running ffprobe metadata ({stream_selector}): {cmd}")
         try:
             result = subprocess.run(cmd, capture_output=True, text=True,
                                     timeout=60, shell=True)
@@ -71,46 +75,66 @@ class MetadataRule(Rule):
             data = json.loads(result.stdout)
             streams = data.get("streams", [])
             if not streams:
-                logger.error(f"No video streams found in {video_path}")
+                logger.error(f"No streams found for selector '{stream_selector}' in {video_path}")
                 return {}
             stream = streams[0]
-            logger.info(f"Metadata received")
-            return {k: v for k, v in stream.items() if k in self.expected}
+            logger.info(f"Metadata received for {stream_selector}")
+            return {k: v for k, v in stream.items() if k in fields_dict}
         except Exception as e:
             logger.error(f"ffprobe metadata error: {e}")
             return {}
+
+    def _check_fields(self, actual, expected, label):
+        all_match = True
+        for field, expected_value in expected.items():
+            actual_value = actual.get(field)
+            if actual_value is None:
+                self.add_error(
+                    f"Metadata field '{field}' not found in {label}. Expected: {expected_value}"
+                )
+                all_match = False
+            elif str(actual_value) != str(expected_value):
+                self.add_error(
+                    f"Metadata mismatch for '{field}' in {label}: expected={expected_value}, actual={actual_value}"
+                )
+                all_match = False
+        return all_match
 
     def apply(self, context):
         if not context.get("output_exists"):
             logger.info("MetadataRule: skipped - output video not produced")
             return
 
-        actual = self._get_metadata(context["ffprobe_exe"], context["output_video"])
+        # Always: video stream (v:0) vs expected_metadata
+        actual = self._get_metadata(context["ffprobe_exe"], context["output_video"],
+                                    "v:0", self.expected)
         self.json_content["metadata"] = actual
 
         if actual:
             meta_parts = [f"{k}: {v}" for k, v in actual.items()]
             self.json_content["message"].append({
-                "issue":       "Output video metadata: " + ", ".join(meta_parts),
-                "description": "ffprobe output"
+                "issue":       "Video stream metadata: " + ", ".join(meta_parts),
+                "description": "ffprobe output (v:0)"
             })
-        
-        metadata_exists = True
-        for field, expected_value in self.expected.items():
-            actual_value = actual.get(field)
-            if actual_value is None:
-                self.add_error(
-                    f"Metadata field '{field}' not found in output video. Expected: {expected_value}"
-                )
-                metadata_exists = False
-            elif str(actual_value) != str(expected_value):
-                self.add_error(
-                    f"Metadata mismatch for '{field}': expected={expected_value}, actual={actual_value}"
-                )
-                metadata_exists = False
 
-        if metadata_exists:
-            logger.info("MetadataRule: all metadata fields match")
+        if self._check_fields(actual, self.expected, "video stream (v:0)"):
+            logger.info("MetadataRule: all video stream fields match")
+
+        # Optional: additional stream (e.g. a:0) vs expected_metadata_for_stream
+        if self.stream and self.expected_stream:
+            actual_stream = self._get_metadata(context["ffprobe_exe"], context["output_video"],
+                                               self.stream, self.expected_stream)
+            self.json_content["metadata_for_stream"] = actual_stream
+
+            if actual_stream:
+                stream_parts = [f"{k}: {v}" for k, v in actual_stream.items()]
+                self.json_content["message"].append({
+                    "issue":       f"Stream metadata ({self.stream}): " + ", ".join(stream_parts),
+                    "description": f"ffprobe output ({self.stream})"
+                })
+
+            if self._check_fields(actual_stream, self.expected_stream, f"stream ({self.stream})"):
+                logger.info(f"MetadataRule: all {self.stream} stream fields match")
 
 
 class PSNRRule(Rule):
@@ -327,6 +351,51 @@ class DecodeRule(Rule):
             self.json_content["message"].append({
                 "issue":       "No decode errors",
                 "description": "Decode check passed"
+            })
+
+
+class DecodeAudioRule(Rule):
+    """
+    Decodes the output audio with ffmpeg -v error and checks that stderr is empty.
+    Applied only when listed in case "rules".
+    """
+
+    def __init__(self, case, json_content):
+        super().__init__(
+            case, json_content,
+            default_message="Decode audio errors detected in output video",
+            description="Decode output audio with ffmpeg -v error and verify empty stderr"
+        )
+
+    def should_be_executed(self):
+        return True
+
+    def _decode_check(self, ffmpeg_exe, output_video):
+        cmd = (f'"{ffmpeg_exe}" -hide_banner -v error'
+               f' -i "{output_video}" -map 0:a:0 -f null -')
+        logger.info(f"Running decode audio check: {cmd}")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True,
+                                    timeout=300, shell=True)
+            return result.stderr.strip()
+        except Exception as e:
+            logger.error(f"Decode audio check error: {e}")
+            return str(e)
+
+    def apply(self, context):
+        if not context.get("output_exists"):
+            logger.info("DecodeAudioRule: skipped - output video not produced")
+            return
+
+        decode_errors = self._decode_check(context["ffmpeg_exe"], context["output_video"])
+        if decode_errors:
+            message = f"Decode audio errors detected: {decode_errors}"
+            self.add_error(message if len(message) <= 1000 else message[:400] + "........." + message[-500:])
+        else:
+            logger.info("DecodeAudioRule: no audio decode errors")
+            self.json_content["message"].append({
+                "issue":       "No audio decode errors",
+                "description": "Decode audio check passed"
             })
 
 

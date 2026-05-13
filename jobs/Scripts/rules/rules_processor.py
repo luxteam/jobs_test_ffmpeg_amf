@@ -4,6 +4,7 @@ import traceback
 from rules.rule_impl.ffmpeg_rules import (
     ConversionSuccessRule,
     DecodeRule,
+    DecodeAudioRule,
     FormatRule,
     FrameCountRule,
     MetadataRule,
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 RULES = {
     "conversion_success": ConversionSuccessRule,
     "decode_rule":        DecodeRule,
+    "decode_audio_rule":  DecodeAudioRule,
     "format_rule":        FormatRule,
     "frame_count_rule":   FrameCountRule,
     "metadata_rule":      MetadataRule,

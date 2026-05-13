@@ -1,0 +1,71 @@
+{
+    "cases": [
+
+        {
+            "case": "audio_001",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -f lavfi -i sine=frequency=1000:sample_rate=48000 -t 3 -c:v h264_amf -pix_fmt nv12 -c:a aac -b:a 128k -shortest",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "codec_type": "video"
+            },
+            "stream": "a:0",
+            "expected_metadata_for_stream": {
+                "codec_name": "aac",
+                "codec_type": "audio",
+                "sample_rate": "48000",
+                "channels": 1
+            },
+            "description": [
+                "Audio tests",
+                "H.264 output"
+            ],
+            "rules": ["metadata_rule", "decode_rule", "decode_audio_rule"]
+        },
+        {
+            "case": "audio_002",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -f lavfi -i sine=frequency=1000:sample_rate=48000 -t 3 -c:v hevc_amf -pix_fmt nv12 -c:a aac -b:a 128k -shortest",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "codec_type": "video"
+            },
+            "stream": "a:0",
+            "expected_metadata_for_stream": {
+                "codec_name": "aac",
+                "codec_type": "audio",
+                "sample_rate": "48000",
+                "channels": 1
+            },
+            "description": [
+                "Audio tests",
+                "HEVC output"
+            ],
+            "rules": ["metadata_rule", "decode_rule", "decode_audio_rule"]
+        },
+        {
+            "case": "audio_003",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -f lavfi -i sine=frequency=1000:sample_rate=48000 -t 3 -c:v av1_amf -pix_fmt nv12 -c:a aac -b:a 128k -shortest",
+            "output_format": "mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "codec_type": "video"
+            },
+            "stream": "a:0",
+            "expected_metadata_for_stream": {
+                "codec_name": "aac",
+                "codec_type": "audio",
+                "sample_rate": "48000",
+                "channels": 1
+            },
+            "description": [
+                "Audio tests",
+                "AV1 output"
+            ],
+            "rules": ["metadata_rule", "decode_rule", "decode_audio_rule", "format_rule"]
+        }
+
+
+    ]
+}

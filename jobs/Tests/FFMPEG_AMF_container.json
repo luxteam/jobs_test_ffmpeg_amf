@@ -142,7 +142,7 @@
             "rules": ["metadata_rule","format_rule"]
         },
         {
-            "case": "container_007",
+            "case": "container_008",
             "status": "active",
             "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
             "output_format": "webm",

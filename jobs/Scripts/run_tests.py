@@ -341,23 +341,59 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     logger.info(f"[{case_name}] Conversion done in {elapsed:.1f}s, exit={returncode}")
 
     # ---- 2.5. Generate reference video (non-AMF) for quality comparison ----
-    generated_reference_path = None
-    if "reference_keys" in case and input_video_path:
-        reference_output = os.path.join(case_output_dir, f"{case_name}_reference.mp4")
-        ref_case         = {"keys": case["reference_keys"]}
-        ref_log          = os.path.join(case_output_dir, f"{case_name}_reference.log")
-        ref_returncode   = fu.run_conversion(
-            ffmpeg_exe, input_video_path, reference_output, ref_case, ref_log
-        )
-        if ref_returncode == 0 and os.path.exists(reference_output):
-            generated_reference_path = reference_output
-            logger.info(f"[{case_name}] Reference video generated: {reference_output}")
-        else:
-            logger.error(f"[{case_name}] Reference generation failed (exit {ref_returncode})")
-            report["message"].append({
-                "issue": f"Reference video generation failed (exit {ref_returncode})",
-                "description": "psnr_rule/ssim_rule reference comparison will be skipped"
-            })
+    generated_reference_path       = None
+    generated_reference_input_path = None
+    reference_input_path           = None  # separate PSNR/SSIM baseline for reference encode
+
+    if "reference_keys" in case:
+        # Determine input for reference encode — separate source if specified, else same as main.
+        # reference_input_video takes priority over reference_input_video_keys.
+        ref_input_path = input_video_path
+
+        if "reference_input_video" in case:
+            candidate = os.path.join(video_samples_dir, case["reference_input_video"])
+            if not os.path.exists(candidate):
+                logger.error(f"[{case_name}] Reference input not found: {candidate}")
+                report["test_status"] = "failed"
+                report["message"].append({
+                    "issue": f"Reference input video not found: {candidate}",
+                    "description": "reference_keys comparison will be skipped"
+                })
+                ref_input_path = None
+            else:
+                ref_input_path       = candidate
+                reference_input_path = candidate
+        elif "reference_input_video_keys" in case:
+            generated_reference_input_path = fu.generate_input_video(
+                case["reference_input_video_keys"], ffmpeg_exe, case_output_dir, case_name, logger
+            )
+            if generated_reference_input_path is None:
+                logger.error(f"[{case_name}] Reference input generation failed")
+                report["test_status"] = "failed"
+                report["message"].append({
+                    "issue": "Reference input video generation failed",
+                    "description": "reference_keys comparison will be skipped"
+                })
+            ref_input_path       = generated_reference_input_path
+            reference_input_path = generated_reference_input_path
+
+        if ref_input_path:
+            reference_output = os.path.join(case_output_dir, f"{case_name}_reference.mp4")
+            ref_case         = {"keys": case["reference_keys"]}
+            ref_log          = os.path.join(case_output_dir, f"{case_name}_reference.log")
+            ref_returncode   = fu.run_conversion(
+                ffmpeg_exe, ref_input_path, reference_output, ref_case, ref_log
+            )
+            if ref_returncode == 0 and os.path.exists(reference_output):
+                generated_reference_path = reference_output
+                logger.info(f"[{case_name}] Reference video generated: {reference_output}")
+            else:
+                logger.error(f"[{case_name}] Reference generation failed (exit {ref_returncode})")
+                report["test_status"] = "failed"
+                report["message"].append({
+                    "issue": f"Reference video generation failed (exit {ref_returncode})",
+                    "description": "psnr_rule/ssim_rule reference comparison will be skipped"
+                })
 
     # ---- 3. Build context and apply rules ----
     # Each rule is responsible for its own data collection (ffprobe, psnr filter, etc.)
@@ -374,13 +410,15 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
         "has_reference":  has_reference,
         "psnr_log":            os.path.join(case_output_dir, f"{case_name}_psnr.log"),
         "ssim_log":            os.path.join(case_output_dir, f"{case_name}_ssim.log"),
-        "reference_video":     generated_reference_path,
-        "reference_psnr_log":  os.path.join(case_output_dir, f"{case_name}_psnr_reference.log"),
-        "reference_ssim_log":  os.path.join(case_output_dir, f"{case_name}_ssim_reference.log"),
+        "reference_video":       generated_reference_path,
+        "reference_input_video": reference_input_path,
+        "reference_psnr_log":    os.path.join(case_output_dir, f"{case_name}_psnr_reference.log"),
+        "reference_ssim_log":    os.path.join(case_output_dir, f"{case_name}_ssim_reference.log"),
         "results_dir":         _results_dir,
     }
 
-    report["test_status"] = "passed"   # rules will downgrade if needed
+    if report["test_status"] == "error":   # still at init value — promote to passed
+        report["test_status"] = "passed"   # rules will downgrade if needed
     processor = RulesProcessor(case, report)
     processor.process(context)
 
@@ -426,7 +464,8 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
             logger.warning(f"[{case_name}] Frame extraction failed: {e}")
 
     # ---- 5. Cleanup generated videos ----
-    for cleanup_path in (output_video, generated_reference_path, generated_input_path):
+    for cleanup_path in (output_video, generated_reference_path,
+                         generated_reference_input_path, generated_input_path):
         if cleanup_path and os.path.exists(cleanup_path):
             try:
                 os.remove(cleanup_path)

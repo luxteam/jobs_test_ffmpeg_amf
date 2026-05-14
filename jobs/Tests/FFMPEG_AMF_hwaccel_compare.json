@@ -26,7 +26,7 @@
             "case": "hwaccel_compare_002",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
-            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264",
+            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v libx264",
             "input_video": "hwaccel_input_h264.mp4",
             "expected_metadata": {
                 "codec_name": "h264",
@@ -48,7 +48,31 @@
             "case": "hwaccel_compare_003",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
-            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264",
+            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v libx264",
+            "input_video": "hwaccel_input_h264.mp4",
+            "reference_input_video": "hwaccel_input_h264_ref.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel compare tests",
+                "Input reference video",
+                "Reference video",
+                "DX9/DXVA2 decode - AMF encode",
+                "H.264 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_compare_004",
+            "status": "active",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
+            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v libx264",
             "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12 input_h264.mp4",
             "expected_metadata": {
                 "codec_name": "h264",
@@ -68,7 +92,32 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
         },
         {
-            "case": "hwaccel_compare_004",
+            "case": "hwaccel_compare_005",
+            "status": "active",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
+            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v libx264",
+            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12 input_h264.mp4",
+            "reference_input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v libx264 -pix_fmt yuv420p input_h264_ref.mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel compare tests",
+                "Generated video",
+                "Input reference video",
+                "Reference video",
+                "DX9/DXVA2 decode - AMF encode",
+                "H.264 input",
+                "H.264 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_compare_006",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
             "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12 input_hevc.mp4",
@@ -89,10 +138,10 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
         },
         {
-            "case": "hwaccel_compare_005",
+            "case": "hwaccel_compare_007",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
-            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc",
+            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v libx265",
             "input_video": "hwaccel_input_hevc.mp4",
             "expected_metadata": {
                 "codec_name": "hevc",
@@ -111,10 +160,34 @@
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
         },
         {
-            "case": "hwaccel_compare_006",
+            "case": "hwaccel_compare_008",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
-            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc",
+            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v libx265",
+            "input_video": "hwaccel_input_hevc.mp4",
+            "reference_input_video": "hwaccel_input_hevc_ref.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel compare tests",
+                "Input reference video",
+                "Reference video",
+                "DX9/DXVA2 decode - AMF encode",
+                "HEVC input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_compare_009",
+            "status": "active",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
+            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v libx265",
             "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12 input_hevc.mp4",
             "expected_metadata": {
                 "codec_name": "hevc",
@@ -126,6 +199,31 @@
             "description": [
                 "Hardware decode/hwaccel compare tests",
                 "Generated video",
+                "Reference video",
+                "DX9/DXVA2 decode - AMF encode",
+                "HEVC input",
+                "HEVC AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_compare_010",
+            "status": "active",
+            "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
+            "reference_keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v libx265",
+            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12 input_hevc.mp4",
+            "reference_input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v libx265 -pix_fmt yuv420p input_hevc_ref.mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel compare tests",
+                "Generated video",
+                "Input reference video",
                 "Reference video",
                 "DX9/DXVA2 decode - AMF encode",
                 "HEVC input",

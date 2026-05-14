@@ -226,8 +226,9 @@ class PSNRRule(Rule):
         })
 
         if context.get("reference_video"):
+            ref_baseline = context.get("reference_input_video") or context["input_video"]
             ref_psnr = self._measure_psnr(
-                context["ffmpeg_exe"], context["input_video"],
+                context["ffmpeg_exe"], ref_baseline,
                 context["reference_video"], context["reference_psnr_log"]
             )
             self.json_content["psnr_reference"] = ref_psnr
@@ -340,8 +341,9 @@ class SSIMRule(Rule):
         })
 
         if context.get("reference_video"):
+            ref_baseline = context.get("reference_input_video") or context["input_video"]
             ref_ssim = self._measure_ssim(
-                context["ffmpeg_exe"], context["input_video"],
+                context["ffmpeg_exe"], ref_baseline,
                 context["reference_video"], context["reference_ssim_log"]
             )
             self.json_content["ssim_reference"] = ref_ssim

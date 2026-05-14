@@ -128,6 +128,10 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "ffmpeg_conversion_log":    "",
         "psnr_log":                 "",
         "ssim_log":                 "",
+        "psnr_reference":           None,
+        "ssim_reference":           None,
+        "psnr_reference_log":       "",
+        "ssim_reference_log":       "",
     }
 
 
@@ -281,19 +285,39 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     report = make_case_report(case, output_dir, gpu_name, test_group, render_version)
 
     # ---- 1. Resolve and verify input video ----
-    input_file = case.get("input_video")
-    has_reference = bool(input_file) and "<input_video>" in case.get("keys", "")
-    input_video_path = os.path.join(video_samples_dir, input_file) if has_reference else None
-    report["scene_name"] = input_file or "lavfi"
+    input_video_path     = None
+    has_reference        = False
+    generated_input_path = None
 
-    if has_reference and not os.path.exists(input_video_path):
-        report["test_status"] = "error"
-        report["message"].append({
-            "issue": f"Input video not found: {input_video_path}",
-            "description": "Input video must exist before conversion"
-        })
-        logger.error(f"[{case_name}] Input video not found: {input_video_path}")
-        return report
+    if "input_video" in case:
+        input_file       = case["input_video"]
+        has_reference    = "<input_video>" in case.get("keys", "")
+        input_video_path = os.path.join(video_samples_dir, input_file) if has_reference else None
+        report["scene_name"] = input_file
+        if has_reference and not os.path.exists(input_video_path):
+            report["test_status"] = "error"
+            report["message"].append({
+                "issue": f"Input video not found: {input_video_path}",
+                "description": "Input video must exist before conversion"
+            })
+            logger.error(f"[{case_name}] Input video not found: {input_video_path}")
+            return report
+    elif "input_video_keys" in case:
+        generated_input_path = fu.generate_input_video(
+            case["input_video_keys"], ffmpeg_exe, case_output_dir, case_name, logger
+        )
+        if generated_input_path is None:
+            report["test_status"] = "error"
+            report["message"].append({
+                "issue": "Input video generation failed",
+                "description": "generate_input_video returned None - see log for details"
+            })
+            return report
+        input_video_path  = generated_input_path
+        has_reference     = "<input_video>" in case.get("keys", "")
+        report["scene_name"] = os.path.basename(generated_input_path)
+    else:
+        report["scene_name"] = "lavfi"
 
     # ---- 2. Run FFMPEG conversion ----
     output_format = case.get("output_format", "mp4")
@@ -316,6 +340,25 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     report["execution_time"] = elapsed
     logger.info(f"[{case_name}] Conversion done in {elapsed:.1f}s, exit={returncode}")
 
+    # ---- 2.5. Generate reference video (non-AMF) for quality comparison ----
+    generated_reference_path = None
+    if "reference_keys" in case and input_video_path:
+        reference_output = os.path.join(case_output_dir, f"{case_name}_reference.mp4")
+        ref_case         = {"keys": case["reference_keys"]}
+        ref_log          = os.path.join(case_output_dir, f"{case_name}_reference.log")
+        ref_returncode   = fu.run_conversion(
+            ffmpeg_exe, input_video_path, reference_output, ref_case, ref_log
+        )
+        if ref_returncode == 0 and os.path.exists(reference_output):
+            generated_reference_path = reference_output
+            logger.info(f"[{case_name}] Reference video generated: {reference_output}")
+        else:
+            logger.error(f"[{case_name}] Reference generation failed (exit {ref_returncode})")
+            report["message"].append({
+                "issue": f"Reference video generation failed (exit {ref_returncode})",
+                "description": "psnr_rule/ssim_rule reference comparison will be skipped"
+            })
+
     # ---- 3. Build context and apply rules ----
     # Each rule is responsible for its own data collection (ffprobe, psnr filter, etc.)
     # and writes its results directly into the report.
@@ -329,9 +372,12 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
         "output_exists":  os.path.exists(output_video),
         "returncode":     returncode,
         "has_reference":  has_reference,
-        "psnr_log":       os.path.join(case_output_dir, f"{case_name}_psnr.log"),
-        "ssim_log":       os.path.join(case_output_dir, f"{case_name}_ssim.log"),
-        "results_dir":    _results_dir,
+        "psnr_log":            os.path.join(case_output_dir, f"{case_name}_psnr.log"),
+        "ssim_log":            os.path.join(case_output_dir, f"{case_name}_ssim.log"),
+        "reference_video":     generated_reference_path,
+        "reference_psnr_log":  os.path.join(case_output_dir, f"{case_name}_psnr_reference.log"),
+        "reference_ssim_log":  os.path.join(case_output_dir, f"{case_name}_ssim_reference.log"),
+        "results_dir":         _results_dir,
     }
 
     report["test_status"] = "passed"   # rules will downgrade if needed
@@ -379,13 +425,14 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
         except Exception as e:
             logger.warning(f"[{case_name}] Frame extraction failed: {e}")
 
-    # ---- 5. Cleanup output video ----
-    try:
-        if os.path.exists(output_video):
-            os.remove(output_video)
-            logger.info(f"[{case_name}] Output video removed")
-    except Exception as e:
-        logger.warning(f"[{case_name}] Could not remove output video: {e}")
+    # ---- 5. Cleanup generated videos ----
+    for cleanup_path in (output_video, generated_reference_path, generated_input_path):
+        if cleanup_path and os.path.exists(cleanup_path):
+            try:
+                os.remove(cleanup_path)
+                logger.info(f"[{case_name}] Removed: {cleanup_path}")
+            except Exception as e:
+                logger.warning(f"[{case_name}] Could not remove {cleanup_path}: {e}")
 
     return report
 

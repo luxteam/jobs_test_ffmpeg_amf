@@ -61,7 +61,8 @@
             },
             "description": [
                 "Audio tests",
-                "AV1 output"
+                "AV1 output",
+                "mkv output"
             ],
             "rules": ["metadata_rule", "decode_rule", "decode_audio_rule", "format_rule"]
         }

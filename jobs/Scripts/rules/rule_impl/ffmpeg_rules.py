@@ -145,7 +145,8 @@ class PSNRRule(Rule):
     Default threshold: 30.0 dB (overridable via case "psnr_threshold" field).
     """
 
-    DEFAULT_THRESHOLD = 30.0
+    DEFAULT_THRESHOLD      = 30.0
+    PSNR_COMPARE_TOLERANCE = 3.0   # dB: AMF may be this much lower than non-AMF ref before error
 
     def __init__(self, case, json_content):
         super().__init__(
@@ -224,6 +225,36 @@ class PSNRRule(Rule):
             "description": "Quality metrics"
         })
 
+        if context.get("reference_video"):
+            ref_psnr = self._measure_psnr(
+                context["ffmpeg_exe"], context["input_video"],
+                context["reference_video"], context["reference_psnr_log"]
+            )
+            self.json_content["psnr_reference"] = ref_psnr
+            if os.path.exists(context["reference_psnr_log"]):
+                self.json_content["psnr_reference_log"] = (
+                    os.path.relpath(context["reference_psnr_log"],
+                                    context.get("results_dir", "")).replace("\\", "/")
+                )
+            if ref_psnr is None:
+                logger.warning("PSNRRule: reference PSNR measurement failed")
+            else:
+                self.json_content["message"].append({
+                    "issue":       f"PSNR reference (non-AMF): {ref_psnr:.2f} dB",
+                    "description": "Reference quality metrics"
+                })
+                tolerance = self.case.get("psnr_reference_tolerance", self.PSNR_COMPARE_TOLERANCE)
+                if psnr < ref_psnr - tolerance:
+                    self.add_error(
+                        f"AMF PSNR ({psnr:.2f} dB) is significantly lower than "
+                        f"non-AMF reference ({ref_psnr:.2f} dB), tolerance={tolerance} dB"
+                    )
+                else:
+                    logger.info(
+                        f"PSNRRule: AMF PSNR ({psnr:.2f} dB) within tolerance of "
+                        f"reference ({ref_psnr:.2f} dB) - OK"
+                    )
+
 
 class SSIMRule(Rule):
     """
@@ -232,7 +263,8 @@ class SSIMRule(Rule):
     Range: 0.0 to 1.0. Default threshold: 0.9 (overridable via case "ssim_threshold" field).
     """
 
-    DEFAULT_THRESHOLD = 0.9
+    DEFAULT_THRESHOLD      = 0.9
+    SSIM_COMPARE_TOLERANCE = 0.05  # AMF may be this much lower than non-AMF ref before error
 
     def __init__(self, case, json_content):
         super().__init__(
@@ -306,6 +338,36 @@ class SSIMRule(Rule):
             "issue":       f"SSIM: {ssim:.4f}",
             "description": "Quality metrics"
         })
+
+        if context.get("reference_video"):
+            ref_ssim = self._measure_ssim(
+                context["ffmpeg_exe"], context["input_video"],
+                context["reference_video"], context["reference_ssim_log"]
+            )
+            self.json_content["ssim_reference"] = ref_ssim
+            if os.path.exists(context["reference_ssim_log"]):
+                self.json_content["ssim_reference_log"] = (
+                    os.path.relpath(context["reference_ssim_log"],
+                                    context.get("results_dir", "")).replace("\\", "/")
+                )
+            if ref_ssim is None:
+                logger.warning("SSIMRule: reference SSIM measurement failed")
+            else:
+                self.json_content["message"].append({
+                    "issue":       f"SSIM reference (non-AMF): {ref_ssim:.4f}",
+                    "description": "Reference quality metrics"
+                })
+                tolerance = self.case.get("ssim_reference_tolerance", self.SSIM_COMPARE_TOLERANCE)
+                if ssim < ref_ssim - tolerance:
+                    self.add_error(
+                        f"AMF SSIM ({ssim:.4f}) is significantly lower than "
+                        f"non-AMF reference ({ref_ssim:.4f}), tolerance={tolerance}"
+                    )
+                else:
+                    logger.info(
+                        f"SSIMRule: AMF SSIM ({ssim:.4f}) within tolerance of "
+                        f"reference ({ref_ssim:.4f}) - OK"
+                    )
 
 
 class DecodeRule(Rule):

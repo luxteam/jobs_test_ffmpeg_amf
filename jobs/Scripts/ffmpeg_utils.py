@@ -192,3 +192,38 @@ def extract_worst_frames(input_video, output_video, out_dir, count=5, psnr_log=N
     cap_in.release()
     cap_out.release()
     return results
+
+
+# ---------------------------------------------------------------------------
+# Input video generation
+# ---------------------------------------------------------------------------
+
+def generate_input_video(input_video_keys, ffmpeg_exe, case_output_dir, case_name, logger):
+    """
+    Generate an input video from a full ffmpeg command string.
+
+    input_video_keys must be a complete ffmpeg command where:
+      - tokens[0] is any placeholder for the ffmpeg executable (replaced with ffmpeg_exe)
+      - tokens[-1] is the output filename (resolved into case_output_dir)
+
+    Returns the absolute path to the generated file, or None on failure.
+    """
+    tokens = input_video_keys.strip().split()
+    tokens[0] = f'"{ffmpeg_exe}"'
+    out_filename = os.path.basename(tokens[-1].strip('"').strip("'"))
+    out_path     = os.path.join(case_output_dir, out_filename)
+    tokens[-1]   = f'"{out_path}"'
+    cmd = " ".join(tokens)
+    logger.info(f"[{case_name}] Generating input video: {cmd}")
+    result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
+    if result.returncode != 0:
+        logger.error(
+            f"[{case_name}] Input generation failed (exit {result.returncode}): "
+            f"{result.stderr[:300]}"
+        )
+        return None
+    if not os.path.exists(out_path):
+        logger.error(f"[{case_name}] Input generation: output not found: {out_path}")
+        return None
+    logger.info(f"[{case_name}] Input video generated: {out_path}")
+    return out_path

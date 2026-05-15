@@ -304,7 +304,8 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
             return report
     elif "input_video_keys" in case:
         generated_input_path = fu.generate_input_video(
-            case["input_video_keys"], ffmpeg_exe, case_output_dir, case_name, logger
+            case["input_video_keys"], ffmpeg_exe, case_output_dir, case_name, logger,
+            ext=case.get("input_video_format", "mp4")
         )
         if generated_input_path is None:
             report["test_status"] = "error"
@@ -365,7 +366,8 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
                 reference_input_path = candidate
         elif "reference_input_video_keys" in case:
             generated_reference_input_path = fu.generate_input_video(
-                case["reference_input_video_keys"], ffmpeg_exe, case_output_dir, case_name, logger
+                case["reference_input_video_keys"], ffmpeg_exe, case_output_dir, case_name, logger,
+                suffix="_ref_input", ext=case.get("reference_input_video_format", "mp4")
             )
             if generated_reference_input_path is None:
                 logger.error(f"[{case_name}] Reference input generation failed")

@@ -198,22 +198,26 @@ def extract_worst_frames(input_video, output_video, out_dir, count=5, psnr_log=N
 # Input video generation
 # ---------------------------------------------------------------------------
 
-def generate_input_video(input_video_keys, ffmpeg_exe, case_output_dir, case_name, logger):
+def generate_input_video(input_video_keys, ffmpeg_exe, case_output_dir, case_name, logger,
+                         suffix="_input", ext="mp4"):
     """
-    Generate an input video from a full ffmpeg command string.
+    Generate an input video from a ffmpeg command string (without output filename).
 
-    input_video_keys must be a complete ffmpeg command where:
-      - tokens[0] is any placeholder for the ffmpeg executable (replaced with ffmpeg_exe)
-      - tokens[-1] is the output filename (resolved into case_output_dir)
+    input_video_keys must be a complete ffmpeg command up to (but not including)
+    the output filename — tokens[0] is any placeholder for the ffmpeg executable
+    (replaced with ffmpeg_exe). The output filename is auto-generated as
+    {case_name}{suffix}.{ext} inside case_output_dir.
+
+    suffix: "_input" for main generated input, "_ref_input" for reference input.
+    ext:    container extension, defaults to "mp4"; override via input_video_format
+            or reference_input_video_format fields in the test case.
 
     Returns the absolute path to the generated file, or None on failure.
     """
     tokens = input_video_keys.strip().split()
     tokens[0] = f'"{ffmpeg_exe}"'
-    out_filename = os.path.basename(tokens[-1].strip('"').strip("'"))
-    out_path     = os.path.join(case_output_dir, out_filename)
-    tokens[-1]   = f'"{out_path}"'
-    cmd = " ".join(tokens)
+    out_path = os.path.join(case_output_dir, f"{case_name}{suffix}.{ext}")
+    cmd = " ".join(tokens) + f' "{out_path}"'
     logger.info(f"[{case_name}] Generating input video: {cmd}")
     result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
     if result.returncode != 0:

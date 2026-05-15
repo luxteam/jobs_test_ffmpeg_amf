@@ -5,7 +5,7 @@
             "case": "hwaccel_compare_001",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
-            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12 input_h264.mp4",
+            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -73,7 +73,7 @@
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
             "reference_keys": "-hwaccel dxva2 -i <input_video> -c:v h264_mf",
-            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12 input_h264.mp4",
+            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -96,8 +96,8 @@
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
             "reference_keys": "-hwaccel dxva2 -i <input_video> -c:v h264_mf",
-            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12 input_h264.mp4",
-            "reference_input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_mf input_h264_ref.mp4",
+            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "reference_input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_mf",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -121,8 +121,8 @@
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf -b:v 1M",
             "reference_keys": "-hwaccel dxva2 -i <input_video> -c:v h264_mf -b:v 10M",
-            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12 input_h264.mp4",
-            "reference_input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_mf input_h264_ref.mp4",
+            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "reference_input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_mf",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,

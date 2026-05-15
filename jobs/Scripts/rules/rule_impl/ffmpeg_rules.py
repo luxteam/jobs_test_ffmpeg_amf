@@ -265,7 +265,7 @@ class SSIMRule(Rule):
     """
 
     DEFAULT_THRESHOLD      = 0.9
-    SSIM_COMPARE_TOLERANCE = 0.05  # AMF may be this much lower than non-AMF ref before error
+    SSIM_COMPARE_TOLERANCE = 0.01  # AMF may be this much lower than non-AMF ref before error
 
     def __init__(self, case, json_content):
         super().__init__(

@@ -1,6 +1,3 @@
-# Local runner config — contains machine-specific paths, never commit
-local_config.json
-
 # Python
 __pycache__/
 *.py[cod]

@@ -203,10 +203,10 @@ def generate_input_video(input_video_keys, ffmpeg_exe, case_output_dir, case_nam
     """
     Generate an input video from a ffmpeg command string (without output filename).
 
-    input_video_keys must be a complete ffmpeg command up to (but not including)
-    the output filename — tokens[0] is any placeholder for the ffmpeg executable
-    (replaced with ffmpeg_exe). The output filename is auto-generated as
-    {case_name}{suffix}.{ext} inside case_output_dir.
+    input_video_keys contains only the ffmpeg flags — the same format as the "keys"
+    field in test cases.  Do NOT include the ffmpeg executable or -hide_banner -y;
+    those are prepended automatically (same as build_conversion_command does for "keys").
+    The output filename is auto-generated as {case_name}{suffix}.{ext} inside case_output_dir.
 
     suffix: "_input" for main generated input, "_ref_input" for reference input.
     ext:    container extension, defaults to "mp4"; override via input_video_format
@@ -214,10 +214,8 @@ def generate_input_video(input_video_keys, ffmpeg_exe, case_output_dir, case_nam
 
     Returns the absolute path to the generated file, or None on failure.
     """
-    tokens = input_video_keys.strip().split()
-    tokens[0] = f'"{ffmpeg_exe}"'
     out_path = os.path.join(case_output_dir, f"{case_name}{suffix}.{ext}")
-    cmd = " ".join(tokens) + f' "{out_path}"'
+    cmd = f'"{ffmpeg_exe}" -hide_banner -y {input_video_keys.strip()} "{out_path}"'
     logger.info(f"[{case_name}] Generating input video: {cmd}")
     result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
     if result.returncode != 0:

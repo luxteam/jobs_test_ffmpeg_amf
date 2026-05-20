@@ -1,0 +1,69 @@
+{
+    "cases": [
+
+        {
+            "case": "quality_001",
+            "status": "active",
+            "keys": "-i <input_video> -c:v h264_amf -usage transcoding -quality quality -rc cqp -qp_i 18 -qp_p 20 -pix_fmt nv12",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v ffv1",
+            "input_video_format": "mkv",
+            "output_format": "mp4",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Quality tests",
+                "H.264 output"
+            ],
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "quality_002",
+            "status": "active",
+            "keys": "-i <input_video> -c:v hevc_amf -usage transcoding -quality quality -rc cqp -qp_i 18 -qp_p 20 -pix_fmt nv12",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v ffv1",
+            "input_video_format": "mkv",
+            "output_format": "mp4",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Quality tests",
+                "HEVC output"
+            ],
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+        },
+        {
+            "case": "quality_003",
+            "status": "active",
+            "keys": "-i <input_video> -c:v av1_amf -usage transcoding -quality quality -rc cqp -qp_i 18 -qp_p 20 -pix_fmt nv12",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v ffv1",
+            "input_video_format": "mkv",
+            "output_format": "mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Quality tests",
+                "AV1 output"
+            ],
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+        }
+
+    ]
+}

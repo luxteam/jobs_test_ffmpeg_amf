@@ -5,7 +5,7 @@
             "case": "transcode_001",
             "status": "active",
             "keys": "-i <input_video> -c:v h264_amf -usage transcoding -quality balanced -pix_fmt nv12",
-            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -25,7 +25,7 @@
             "case": "transcode_002",
             "status": "active",
             "keys": "-i <input_video> -c:v hevc_amf -usage transcoding -quality balanced -pix_fmt nv12",
-            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -45,7 +45,7 @@
             "case": "transcode_003",
             "status": "active",
             "keys": "-i <input_video> -c:v av1_amf -usage transcoding -quality balanced -pix_fmt nv12",
-            "input_video_keys": "ffmpeg -hide_banner -y -f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
             "output_format": "mkv",
             "expected_metadata": {
                 "codec_name": "av1",

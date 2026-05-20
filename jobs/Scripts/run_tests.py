@@ -7,9 +7,6 @@ Writes output in jobs_launcher-compatible format:
   <output>/Color/<case>/            - extracted frames for report
   <output>/report_compare.json      - collected for build_reports.bat
 
-Called directly by run_local.py (local mode) or via Jenkins pipeline (CI mode).
-See run_local.py for local usage; see pipelines/amfdev_ffmpeg_amf.groovy for CI usage.
-
 Each test case in the test pack carries its own "input_video" filename.
 The runner resolves the full path as: video_samples / case["input_video"].
 
@@ -55,7 +52,7 @@ def setup_logging(output_dir, logger_name=__name__):
 
     logger = logging.getLogger(logger_name)
     if logger.handlers:
-        return logger  # already configured (e.g. called from run_local.py)
+        return logger
 
     logger.setLevel(logging.INFO)
     fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -276,7 +273,7 @@ def load_test_pack(path):
 # ---------------------------------------------------------------------------
 
 def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
-                    video_samples_dir, default_input_video,
+                    video_samples_dir,
                     gpu_name, test_group, render_version, logger):
     case_name = case["case"]
     case_output_dir = os.path.join(output_dir, case_name)
@@ -479,14 +476,13 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
 
 
 # ---------------------------------------------------------------------------
-# Core runner - called by both CLI (main) and run_local.py (run)
+# Core runner
 # ---------------------------------------------------------------------------
 
 def run(args):
     """
     Execute the full test run given a populated args namespace.
     Returns int exit code (0 = all passed, 1 = failures/errors).
-    Usable directly from run_local.py without spawning a subprocess.
     """
     logger = setup_logging(args.output)
     logger.info("=" * 60)
@@ -513,12 +509,10 @@ def run(args):
     logger.info(f"  Test group:     {test_group}")
 
     try:
-        cases, pack_meta = load_test_pack(args.test_pack)
+        cases, _ = load_test_pack(args.test_pack)
     except Exception as e:
         logger.error(f"Failed to load test pack: {e}")
         return 1
-
-    default_input_video = "default_input_video.mp4"
 
     if getattr(args, "test_cases", ""):
         selected = {c.strip() for c in args.test_cases.split(",") if c.strip()}
@@ -549,7 +543,7 @@ def run(args):
             report = run_single_case(
                 case, group_dir,
                 ffmpeg_exe, ffprobe_exe,
-                args.video_samples, default_input_video,
+                args.video_samples,
                 args.gpu_name, test_group, render_version, logger
             )
         except Exception as e:

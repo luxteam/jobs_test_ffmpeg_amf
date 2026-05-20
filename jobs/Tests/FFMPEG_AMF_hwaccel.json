@@ -5,7 +5,7 @@
             "case": "hwaccel_001",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -25,7 +25,7 @@
             "case": "hwaccel_002",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -45,7 +45,7 @@
             "case": "hwaccel_003",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -65,7 +65,7 @@
             "case": "hwaccel_004",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -85,7 +85,7 @@
             "case": "hwaccel_005",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -105,7 +105,7 @@
             "case": "hwaccel_006",
             "status": "active",
             "keys": "-hwaccel dxva2 -hwaccel_output_format dxva2_vld -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -121,12 +121,11 @@
             ],
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
         },
-
         {
             "case": "hwaccel_007",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -146,7 +145,7 @@
             "case": "hwaccel_008",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -166,7 +165,7 @@
             "case": "hwaccel_009",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -186,7 +185,7 @@
             "case": "hwaccel_010",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -206,7 +205,7 @@
             "case": "hwaccel_011",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -226,7 +225,7 @@
             "case": "hwaccel_012",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -246,7 +245,8 @@
             "case": "hwaccel_013",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -266,7 +266,8 @@
             "case": "hwaccel_014",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -286,7 +287,8 @@
             "case": "hwaccel_015",
             "status": "active",
             "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -307,7 +309,7 @@
             "case": "hwaccel_016",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -327,7 +329,7 @@
             "case": "hwaccel_017",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -347,7 +349,7 @@
             "case": "hwaccel_018",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -367,7 +369,7 @@
             "case": "hwaccel_019",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -387,7 +389,7 @@
             "case": "hwaccel_020",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -407,7 +409,7 @@
             "case": "hwaccel_021",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -427,7 +429,8 @@
             "case": "hwaccel_022",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -447,7 +450,8 @@
             "case": "hwaccel_023",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -467,7 +471,8 @@
             "case": "hwaccel_024",
             "status": "active",
             "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -488,7 +493,7 @@
             "case": "hwaccel_025",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -508,7 +513,7 @@
             "case": "hwaccel_026",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -528,7 +533,7 @@
             "case": "hwaccel_027",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -548,7 +553,7 @@
             "case": "hwaccel_028",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -568,7 +573,7 @@
             "case": "hwaccel_029",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -588,7 +593,7 @@
             "case": "hwaccel_030",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -608,7 +613,8 @@
             "case": "hwaccel_031",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -628,7 +634,8 @@
             "case": "hwaccel_032",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -648,7 +655,8 @@
             "case": "hwaccel_033",
             "status": "active",
             "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -669,7 +677,7 @@
             "case": "hwaccel_034",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -689,7 +697,7 @@
             "case": "hwaccel_035",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -709,7 +717,7 @@
             "case": "hwaccel_036",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_h264.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -729,7 +737,7 @@
             "case": "hwaccel_037",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -749,7 +757,7 @@
             "case": "hwaccel_038",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -769,7 +777,7 @@
             "case": "hwaccel_039",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_hevc.mp4",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -789,7 +797,8 @@
             "case": "hwaccel_040",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "h264",
                 "width": 1280,
@@ -809,7 +818,8 @@
             "case": "hwaccel_041",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "hevc",
                 "width": 1280,
@@ -829,7 +839,8 @@
             "case": "hwaccel_042",
             "status": "active",
             "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
-            "input_video": "hwaccel_input_av1.mkv",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "input_video_format": "mkv",
             "expected_metadata": {
                 "codec_name": "av1",
                 "width": 1280,
@@ -842,6 +853,69 @@
                 "Vulkan decode/device - AMF encode",
                 "AV1 input",
                 "AV1 AMF output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_043",
+            "status": "active",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf -f mpegts",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "output_format": "ts",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Container",
+                "D3D11 H.264 input",
+                "HEVC AMF TS output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_044",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "output_format": "mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Container",
+                "AMF H.264 input",
+                "AV1 AMF MKV output"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_045",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "output_format": "webm",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Hardware decode/hwaccel tests",
+                "Container",
+                "AMF H.264 input",
+                "AV1 AMF WEBM output"
             ],
             "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
         }

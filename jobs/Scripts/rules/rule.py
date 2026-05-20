@@ -29,7 +29,10 @@ class Rule(ABC):
         Apply the rule. Each rule is responsible for its own data collection.
         context: dict with keys:
             ffmpeg_exe, ffprobe_exe, input_video, output_video,
-            returncode, has_reference, psnr_log, ssim_log, results_dir
+            output_exists, returncode, has_reference,
+            psnr_log, ssim_log, results_dir,
+            reference_video, reference_input_video,
+            reference_psnr_log, reference_ssim_log
         """
         pass
 
@@ -47,10 +50,3 @@ class Rule(ABC):
         if self.json_content["test_status"] not in ("error",):
             self.json_content["test_status"] = "failed"
 
-    def add_warning(self, message):
-        """Record a warning without changing test status."""
-        logger.warning(f"Rule warning: {message}")
-        self.json_content["message"].append({
-            "issue": f"[Warning] {message}",
-            "description": self.description
-        })

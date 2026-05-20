@@ -11,7 +11,7 @@
                 "avg_frame_rate": "24/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "H.264 output",
                 "24 FPS"
             ],
@@ -27,7 +27,7 @@
                 "avg_frame_rate": "24/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "HEVC output",
                 "24 FPS"
             ],
@@ -43,7 +43,7 @@
                 "avg_frame_rate": "24/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "AV1 output",
                 "24 FPS"
             ],
@@ -59,7 +59,7 @@
                 "avg_frame_rate": "30/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "H.264 output",
                 "30 FPS"
             ],
@@ -75,7 +75,7 @@
                 "avg_frame_rate": "30/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "HEVC output",
                 "30 FPS"
             ],
@@ -91,7 +91,7 @@
                 "avg_frame_rate": "30/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "AV1 output",
                 "30 FPS"
             ],
@@ -107,7 +107,7 @@
                 "avg_frame_rate": "60/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "H.264 output",
                 "60 FPS"
             ],
@@ -123,7 +123,7 @@
                 "avg_frame_rate": "60/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "HEVC output",
                 "60 FPS"
             ],
@@ -139,7 +139,7 @@
                 "avg_frame_rate": "60/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "AV1 output",
                 "60 FPS"
             ],
@@ -155,7 +155,7 @@
                 "avg_frame_rate": "120/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "H.264 output",
                 "120 FPS"
             ],
@@ -171,7 +171,7 @@
                 "avg_frame_rate": "120/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "HEVC output",
                 "120 FPS"
             ],
@@ -187,7 +187,7 @@
                 "avg_frame_rate": "120/1"
             },
             "description": [
-                "AMF resolution tests",
+                "AMF framerate tests",
                 "AV1 output",
                 "120 FPS"
             ],

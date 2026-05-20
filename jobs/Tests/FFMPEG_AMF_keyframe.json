@@ -1,0 +1,60 @@
+{
+    "cases": [
+
+        {
+            "case": "keyframe_001",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 120 -c:v h264_amf -g 30 -keyint_min 30 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "GOP / keyframe tests",
+                "H.264 output"
+            ],
+            "rules": ["metadata_rule", "decode_rule", "keyframe_rule"]
+        },
+        {
+            "case": "keyframe_002",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 120 -c:v hevc_amf -g 30 -keyint_min 30 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "GOP / keyframe tests",
+                "HEVC output"
+            ],
+            "rules": ["metadata_rule", "decode_rule", "keyframe_rule"]
+        },
+        {
+            "case": "keyframe_003",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 120 -c:v av1_amf -g 30 -keyint_min 30 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "GOP / keyframe tests",
+                "AV1 output"
+            ],
+            "rules": ["metadata_rule", "decode_rule", "keyframe_rule"]
+        }
+
+    ]
+}

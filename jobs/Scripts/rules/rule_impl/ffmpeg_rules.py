@@ -546,6 +546,7 @@ class FormatRule(Rule):
         rate_match   = re.search(r"rate=(\d+(?:\.\d+)?)", keys)
         bitrate_in_keys = (re.search(r"-b:v\s+(\d+)([kKmM]?)", keys))
         mbitrate_in_keys = (re.search(r"-maxrate\s+(\d+)([kKmM]?)", keys))
+        bitrate_tolerance = 0
         if bitrate_in_keys:
             value = int(bitrate_in_keys.group(1))
             unit = bitrate_in_keys.group(2).lower()
@@ -642,6 +643,101 @@ class FormatRule(Rule):
                     "issue":       f"Bitrate: {actual_bitrate} (expected:{', '.join(expected_bitrate_values)}, tolerance={bitrate_tolerance})",
                     "description": "Bitrate check passed"
                 })
+
+
+class KeyframeRule(Rule):
+    """
+    Verifies that keyframes appear at the expected GOP interval.
+    GOP size is parsed from -g N in case keys — rule is skipped if -g is absent.
+    Checks that every inter-keyframe gap is within [gop_size - TOLERANCE, gop_size + TOLERANCE].
+    The tail interval (last keyframe → end of video) is not checked.
+    Tolerance is overridable per case via "keyframe_tolerance" field.
+    """
+
+    TOLERANCE = 3  # frames: allowed deviation from expected GOP interval
+
+    def __init__(self, case, json_content):
+        super().__init__(
+            case, json_content,
+            default_message="Keyframe interval does not match expected GOP size",
+            description="Verify keyframe positions via ffprobe match -g N from keys"
+        )
+        self._gop_size = None
+        match = re.search(r"-g\s+(\d+)", self.case.get("keys", ""))
+        if match:
+            self._gop_size = int(match.group(1))
+
+    def should_be_executed(self):
+        return self._gop_size is not None
+
+    def _get_keyframe_indices(self, ffprobe_exe, output_video):
+        cmd = (f'"{ffprobe_exe}" -v error -select_streams v:0'
+               f' -show_entries frame=key_frame'
+               f' -of csv "{output_video}"')
+        logger.info(f"Running keyframe check: {cmd}")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True,
+                                    timeout=300, shell=True)
+            indices = []
+            for frame_idx, line in enumerate(result.stdout.splitlines()):
+                parts = line.strip().split(",")
+                if len(parts) >= 2 and parts[1].strip() == "1":
+                    indices.append(frame_idx)
+            return indices
+        except Exception as e:
+            logger.error(f"Keyframe check error: {e}")
+            return None
+
+    def apply(self, context):
+        if not context.get("output_exists"):
+            logger.info("KeyframeRule: skipped - output video not produced")
+            return
+
+        gop_size  = self._gop_size
+        tolerance = self.case.get("keyframe_tolerance", self.TOLERANCE)
+
+        keyframe_indices = self._get_keyframe_indices(
+            context["ffprobe_exe"], context["output_video"]
+        )
+
+        if keyframe_indices is None:
+            self.add_error("Keyframe check failed - ffprobe error")
+            return
+        if not keyframe_indices:
+            self.add_error("No keyframes found in output video")
+            return
+
+        # First frame must always be a keyframe
+        if keyframe_indices[0] != 0:
+            self.add_error(
+                f"First frame is not a keyframe (first keyframe at frame {keyframe_indices[0]})"
+            )
+
+        # Check all inter-keyframe intervals (tail not checked)
+        violations = []
+        for i in range(1, len(keyframe_indices)):
+            interval = keyframe_indices[i] - keyframe_indices[i - 1]
+            if not (gop_size - tolerance <= interval <= gop_size + tolerance):
+                violations.append(
+                    f"frame {keyframe_indices[i]}: interval={interval} "
+                    f"(expected {gop_size}±{tolerance})"
+                )
+
+        if violations:
+            summary = f"GOP interval violations ({len(violations)}): " + "; ".join(violations[:5])
+            if len(violations) > 5:
+                summary += f" ... and {len(violations) - 5} more"
+            self.add_error(summary)
+        else:
+            logger.info(
+                f"KeyframeRule: all {len(keyframe_indices)} keyframes within "
+                f"GOP={gop_size}±{tolerance} - OK"
+            )
+            self.json_content["message"].append({
+                "issue":       f"Keyframe interval: GOP={gop_size}, "
+                               f"keyframes={len(keyframe_indices)}, tolerance=±{tolerance}",
+                "description": "Keyframe interval check passed"
+            })
 
 
 class FrameCountRule(Rule):

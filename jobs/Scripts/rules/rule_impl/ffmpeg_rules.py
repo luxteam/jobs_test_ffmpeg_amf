@@ -9,6 +9,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def _extract_stderr_hint(stderr):
+    """Return first 400 chars after the ffmpeg progress marker, or from start if absent."""
+    if not stderr:
+        return ""
+    marker = "Press [q] to stop, [?] for help"
+    idx = stderr.find(marker)
+    text = stderr[idx + len(marker):].lstrip("\n") if idx != -1 else stderr
+    return text[:400].strip()
+
+
 class ConversionSuccessRule(Rule):
     """
     Checks that the FFMPEG conversion process completed without error.
@@ -173,12 +183,12 @@ class PSNRRule(Rule):
                 val  = match.group(1)
                 psnr = float("inf") if val == "inf" else float(val)
                 logger.info(f"PSNR average: {psnr}")
-                return psnr
+                return psnr, ""
             logger.error("Could not parse PSNR")
-            return None
+            return None, _extract_stderr_hint(result.stderr)
         except Exception as e:
             logger.error(f"PSNR error: {e}")
-            return None
+            return None, ""
 
     def apply(self, context):
         if not context.get("has_reference"):
@@ -194,7 +204,7 @@ class PSNRRule(Rule):
             return
 
         psnr_log = context["psnr_log"]
-        psnr = self._measure_psnr(
+        psnr, stderr_hint = self._measure_psnr(
             context["ffmpeg_exe"], context["input_video"], context["output_video"], psnr_log
         )
         self.json_content["psnr"] = psnr
@@ -208,7 +218,10 @@ class PSNRRule(Rule):
         threshold = self.case.get("psnr_threshold", self.DEFAULT_THRESHOLD)
 
         if psnr is None:
-            self.add_error("PSNR measurement failed - no value returned by ffmpeg")
+            msg = "PSNR measurement failed - no value returned by ffmpeg"
+            if stderr_hint:
+                msg += "\n" + stderr_hint
+            self.add_error(msg)
             return
 
         if psnr == float("inf"):
@@ -230,7 +243,7 @@ class PSNRRule(Rule):
             ref_psnr = self._measure_psnr(
                 context["ffmpeg_exe"], ref_baseline,
                 context["reference_video"], context["reference_psnr_log"]
-            )
+            )[0]
             self.json_content["psnr_reference"] = ref_psnr
             if os.path.exists(context["reference_psnr_log"]):
                 self.json_content["psnr_reference_log"] = (
@@ -290,12 +303,12 @@ class SSIMRule(Rule):
             if match:
                 ssim = float(match.group(1))
                 logger.info(f"SSIM All: {ssim}")
-                return ssim
+                return ssim, ""
             logger.error("Could not parse SSIM")
-            return None
+            return None, _extract_stderr_hint(result.stderr)
         except Exception as e:
             logger.error(f"SSIM error: {e}")
-            return None
+            return None, ""
 
     def apply(self, context):
         if not context.get("has_reference"):
@@ -311,7 +324,7 @@ class SSIMRule(Rule):
             return
 
         ssim_log = context["ssim_log"]
-        ssim = self._measure_ssim(
+        ssim, stderr_hint = self._measure_ssim(
             context["ffmpeg_exe"], context["input_video"], context["output_video"], ssim_log
         )
         self.json_content["ssim"] = ssim
@@ -325,7 +338,10 @@ class SSIMRule(Rule):
         threshold = self.case.get("ssim_threshold", self.DEFAULT_THRESHOLD)
 
         if ssim is None:
-            self.add_error("SSIM measurement failed - no value returned by ffmpeg")
+            msg = "SSIM measurement failed - no value returned by ffmpeg"
+            if stderr_hint:
+                msg += "\n" + stderr_hint
+            self.add_error(msg)
             return
 
         if ssim < threshold:
@@ -345,7 +361,7 @@ class SSIMRule(Rule):
             ref_ssim = self._measure_ssim(
                 context["ffmpeg_exe"], ref_baseline,
                 context["reference_video"], context["reference_ssim_log"]
-            )
+            )[0]
             self.json_content["ssim_reference"] = ref_ssim
             if os.path.exists(context["reference_ssim_log"]):
                 self.json_content["ssim_reference_log"] = (

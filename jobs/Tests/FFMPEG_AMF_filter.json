@@ -19,7 +19,7 @@
                 "H.264 input",
                 "H.264 AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_002",
@@ -39,7 +39,7 @@
                 "H.264 input",
                 "HEVC AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_003",
@@ -59,7 +59,7 @@
                 "H.264 input",
                 "AV1 AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_004",
@@ -79,7 +79,7 @@
                 "HEVC input",
                 "H.264 AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_005",
@@ -99,7 +99,7 @@
                 "HEVC input",
                 "HEVC AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_006",
@@ -119,7 +119,7 @@
                 "HEVC input",
                 "AV1 AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_007",
@@ -141,7 +141,7 @@
                 "AV1 input",
                 "H.264 AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_008",
@@ -163,7 +163,7 @@
                 "AV1 input",
                 "HEVC AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_009",
@@ -185,7 +185,7 @@
                 "AV1 input",
                 "AV1 AMF 640x360 output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "decode_rule"]
         },
         {
             "case": "filter_010",

@@ -78,10 +78,6 @@ class MetadataRule(Rule):
                                     timeout=60, shell=True)
             if result.stderr:
                 logger.warning(f"ffprobe stderr: {result.stderr.strip()}")
-                self.json_content["message"].append({
-                    "issue":       f"ffprobe stderr: {result.stderr.strip()}",
-                    "description": "ffprobe reported errors while reading metadata"
-                })
             data = json.loads(result.stdout)
             streams = data.get("streams", [])
             if not streams:
@@ -519,10 +515,6 @@ class FormatRule(Rule):
                                     timeout=60, shell=True)
             if result.stderr:
                 logger.warning(f"ffprobe stderr: {result.stderr.strip()}")
-                self.json_content["message"].append({
-                    "issue":       f"ffprobe stderr: {result.stderr.strip()}",
-                    "description": "ffprobe reported errors while reading format info"
-                })
             info = {}
             for line in result.stdout.splitlines():
                 if "=" in line:

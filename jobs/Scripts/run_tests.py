@@ -114,9 +114,14 @@ def make_case_report(case, output_dir, gpu_name, test_group="", render_version="
         "format_info":              {},
         "ffmpeg_command":           "",
         # ffmpeg_keys: the raw "keys" string from the test case (shown in Info column)
-        "ffmpeg_keys":              case.get("keys", ""),
+        "ffmpeg_keys":                    case.get("keys", ""),
+        "reference_keys":                 case.get("reference_keys", ""),
+        "input_video_keys":               case.get("input_video_keys", ""),
+        "input_video":                    case.get("input_video", ""),
+        "reference_input_video_keys":     case.get("reference_input_video_keys", ""),
+        "reference_input_video":          case.get("reference_input_video", ""),
         # expected_metadata: from test case (shown in Info column)
-        "expected_metadata":        case.get("expected_metadata", {}),
+        "expected_metadata":              case.get("expected_metadata", {}),
         # screens_collection: populated after frame extraction for the Frames carousel
         "screens_collection":       [],
         # Log paths stored relative to results-data/ (NOT in POSSIBLE_JSON_LOG_KEYS,

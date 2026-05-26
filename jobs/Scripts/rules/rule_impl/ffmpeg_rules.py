@@ -21,18 +21,19 @@ def _extract_stderr_hint(stderr):
 
 def _needs_pts_normalization(case):
     """
-    Returns True when one side is MKV and the other is not.
-    MKV's 1 ms timestamp precision causes framesync misalignment
-    in the PSNR/SSIM lavfi filter when the two streams have different
-    container timebase rounding.
-    Condition: (input_video_format == mkv OR output_format == mkv)
+    Returns True when one side is MKV/WebM and the other is not.
+    MKV and WebM share the Matroska 1 ms timebase, which causes framesync
+    misalignment in the PSNR/SSIM lavfi filter when compared against a
+    container with a different timebase (e.g. MP4 at 1/90000).
+    Condition: (input_video_format in {mkv, webm} OR output_format in {mkv, webm})
                AND input_video_format != output_format
-    Set "input_video_format": "mkv" in the test case to trigger this
-    when the source is an uploaded MKV file.
+    Set "input_video_format": "mkv"/"webm" in the test case to trigger this
+    when the source is an uploaded MKV/WebM file.
     """
+    formats_to_normalize = {"mkv", "webm"}
     in_fmt  = case.get("input_video_format", "mp4")
     out_fmt = case.get("output_format",       "mp4")
-    return (in_fmt == "mkv" or out_fmt == "mkv") and in_fmt != out_fmt
+    return (in_fmt in formats_to_normalize or out_fmt in formats_to_normalize) and in_fmt != out_fmt
 
 
 class ConversionSuccessRule(Rule):

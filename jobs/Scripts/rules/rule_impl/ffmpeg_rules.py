@@ -19,6 +19,22 @@ def _extract_stderr_hint(stderr):
     return text[:400].strip()
 
 
+def _needs_pts_normalization(case):
+    """
+    Returns True when one side is MKV and the other is not.
+    MKV's 1 ms timestamp precision causes framesync misalignment
+    in the PSNR/SSIM lavfi filter when the two streams have different
+    container timebase rounding.
+    Condition: (input_video_format == mkv OR output_format == mkv)
+               AND input_video_format != output_format
+    Set "input_video_format": "mkv" in the test case to trigger this
+    when the source is an uploaded MKV file.
+    """
+    in_fmt  = case.get("input_video_format", "mp4")
+    out_fmt = case.get("output_format",       "mp4")
+    return (in_fmt == "mkv" or out_fmt == "mkv") and in_fmt != out_fmt
+
+
 class ConversionSuccessRule(Rule):
     """
     Checks that the FFMPEG conversion process completed without error.
@@ -168,9 +184,20 @@ class PSNRRule(Rule):
         log_dir  = os.path.dirname(log_path)
         log_name = os.path.basename(log_path)
         os.makedirs(log_dir, exist_ok=True)
-        cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
-               f' -lavfi "psnr=stats_file={log_name}" -f null -')
-        logger.info("Measuring PSNR (ffmpeg filter)")
+
+        if _needs_pts_normalization(self.case):
+            cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
+                   f' -filter_complex'
+                   f' "[0:v]settb=1/90000,setpts=N/FRAME_RATE/TB[a];'
+                   f'[1:v]settb=1/90000,setpts=N/FRAME_RATE/TB[b];'
+                   f'[a][b]psnr=stats_file={log_name}"'
+                   f' -f null -')
+            logger.info("Measuring PSNR with PTS normalization (MKV<->non-MKV)")
+        else:
+            cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
+                   f' -lavfi "psnr=stats_file={log_name}" -f null -')
+            logger.info("Measuring PSNR (ffmpeg filter)")
+
         try:
             result = subprocess.run(cmd, stderr=subprocess.PIPE, text=True,
                                     timeout=300, shell=True, cwd=log_dir)
@@ -287,9 +314,19 @@ class SSIMRule(Rule):
         return True
 
     def _measure_ssim(self, ffmpeg_exe, input_video, output_video, log_path):
-        cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
-               f' -lavfi ssim -f null -')
-        logger.info("Measuring SSIM (ffmpeg filter)")
+        if _needs_pts_normalization(self.case):
+            cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
+                   f' -filter_complex'
+                   f' "[0:v]settb=1/90000,setpts=N/FRAME_RATE/TB[a];'
+                   f'[1:v]settb=1/90000,setpts=N/FRAME_RATE/TB[b];'
+                   f'[a][b]ssim"'
+                   f' -f null -')
+            logger.info("Measuring SSIM with PTS normalization (MKV<->non-MKV)")
+        else:
+            cmd = (f'"{ffmpeg_exe}" -i "{input_video}" -i "{output_video}"'
+                   f' -lavfi ssim -f null -')
+            logger.info("Measuring SSIM (ffmpeg filter)")
+
         try:
             result = subprocess.run(cmd, stderr=subprocess.PIPE, text=True,
                                     timeout=300, shell=True)

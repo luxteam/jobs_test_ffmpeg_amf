@@ -136,8 +136,8 @@ def _save_frame_quad(cap_input, cap_output, frame_idx, out_dir, prefix):
 
     diff = cv2.absdiff(f1, f2)
     diff_gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-    diff_norm = cv2.convertScaleAbs(diff_gray, alpha=5)
-    _, diff_thresh = cv2.threshold(diff_gray, 10, 255, cv2.THRESH_BINARY)
+    diff_norm = cv2.normalize(diff_gray, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX)
+    _, diff_thresh = cv2.threshold(diff_gray, 5, 255, cv2.THRESH_BINARY)
 
     cv2.imwrite(p_diff, diff_norm)
     cv2.imwrite(p_thr,  diff_thresh)

@@ -25,12 +25,16 @@ logger = logging.getLogger(__name__)
 # Path helpers
 # ---------------------------------------------------------------------------
 
+# Executable suffix: ".exe" on Windows, empty on Linux/macOS.
+_EXE_SUFFIX = ".exe" if os.name == "nt" else ""
+
+
 def get_ffmpeg_path(build_path):
-    return os.path.join(build_path, "ffmpeg.exe")
+    return os.path.join(build_path, "ffmpeg" + _EXE_SUFFIX)
 
 
 def get_ffprobe_path(build_path):
-    return os.path.join(build_path, "ffprobe.exe")
+    return os.path.join(build_path, "ffprobe" + _EXE_SUFFIX)
 
 
 def get_ffmpeg_version(ffmpeg_exe):

@@ -271,12 +271,19 @@ def build(amf_ffmpeg_dir=None, build_type="release",
     install_dir = os.environ.get("FFMPEG_INSTALL_DIR") or os.path.join(amf_dir, "ffmpeg_install")
     amf_headers = os.path.join(amf_src, "amf", "public", "include")
 
+    # The build scripts concatenate suffixes directly onto these dir vars
+    # ("%FFMPEG_SRC_DIR%configure", "%FFMPEG_BUILD_DIR%extrainclude\"), so each
+    # MUST end with a path separator or the names get mashed together
+    # (".../ffmpegconfigure", ".../build_ffmpegextrainclude").
+    def _with_sep(p):
+        return p if p.endswith(os.sep) else p + os.sep
+
     env = os.environ.copy()
     env.update({
-        "FFMPEG_SRC_DIR":     ffmpeg_src,
-        "FFMPEG_BUILD_DIR":   build_dir,
-        "FFMPEG_INSTALL_DIR": install_dir,
-        "AMF_HEADERS_DIR":    amf_headers,
+        "FFMPEG_SRC_DIR":     _with_sep(ffmpeg_src),
+        "FFMPEG_BUILD_DIR":   _with_sep(build_dir),
+        "FFMPEG_INSTALL_DIR": _with_sep(install_dir),
+        "AMF_HEADERS_DIR":    _with_sep(amf_headers),
         "FFMPEG_BUILD_TYPE":  build_type,
     })
 

@@ -13,12 +13,10 @@ set FFMPEG_UNIX_SRC_DIR=^!UNIX_PATH^!
 
 if "%MSYS2_ROOT%" == "" (set MSYS2_ROOT=C:\msys64\)
 
-rem Initialize Visual Studio build environment if not already done
 if not defined VSCMD_ARG_TGT_ARCH (
-    call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
-    if %errorlevel% neq 0 (echo ======^> Failed to init VS environment & exit /b 1)
+    call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=14.44
 )
-
+	  
 set TARGET=%~1
 
 if "%TARGET%" == "configure" (
@@ -53,7 +51,7 @@ exit /b 0
     set COMMAND=%~2
     set ARGS=%~3
 
-    call %MSYS2_ROOT%msys2_shell.cmd -use-full-path -defterm -no-start -mingw64 -where "%TARGET_DIRECTORY%" -c "export PKG_CONFIG_PATH=/c/deps/dav1d/lib/pkgconfig:/c/deps/x264/lib/pkgconfig:/c/deps/x265/lib/pkgconfig:/c/deps/svtav1/lib/pkgconfig && echo PKG_CONFIG_PATH=$PKG_CONFIG_PATH && which pkg-config && pkg-config --modversion dav1d && pkg-config --cflags --libs dav1d && echo Working... && %COMMAND% %ARGS%"
+    call %MSYS2_ROOT%msys2_shell.cmd -use-full-path -defterm -no-start -mingw64 -where "%TARGET_DIRECTORY%" -c "echo Working... && %COMMAND% %ARGS%"
 
     endlocal & exit /b %errorlevel%
 
@@ -61,8 +59,6 @@ exit /b 0
     setlocal
     if "%FFMPEG_BUILD_TYPE%" == "" (set FFMPEG_BUILD_TYPE=debug)
     if "%AMF_HEADERS_DIR%" == "" (set AMF_HEADERS_DIR=%SCRIPT_DIR%AMF\amf\public\include\)
-
-    set "PKG_CONFIG_PATH=/c/deps/dav1d/lib/pkgconfig:/c/deps/x264/lib/pkgconfig:/c/deps/x265/lib/pkgconfig:/c/deps/svtav1/lib/pkgconfig"
 
     if "%FFMPEG_INSTALL_DIR%" == "" (set FFMPEG_INSTALL_DIR=%SCRIPT_DIR%ffmpeg_install\)
     call :make_unix_path %FFMPEG_INSTALL_DIR%
@@ -72,7 +68,7 @@ exit /b 0
     call :make_unix_path %AMF_INCLUDE_DIR%
     set AMF_UNIX_INCLUDE_DIR=^!UNIX_PATH^!
 
-    set FFMPEG_BUILD_ARGS="--enable-amf --enable-libdav1d --enable-libx264 --enable-libx265 --enable-libsvtav1 --enable-gpl --extra-cflags=-I%AMF_UNIX_INCLUDE_DIR% --extra-cflags=-I%FFMPEG_UNIX_SRC_DIR% --extra-libs=-ladvapi32 --target-os=win64 --arch=x86_64 --toolchain=msvc --disable-doc --disable-ffplay --enable-ffprobe --prefix=%FFMPEG_INSTALL_DIR%"
+    set FFMPEG_BUILD_ARGS="--enable-amf --extra-cflags=-I%AMF_UNIX_INCLUDE_DIR% --extra-cflags=-I%FFMPEG_UNIX_SRC_DIR% --target-os=win64 --arch=x86_64 --toolchain=msvc --disable-doc --disable-ffplay --enable-ffprobe --prefix=%FFMPEG_INSTALL_DIR%"
 
     if "%FFMPEG_BUILD_TYPE%" == "debug" (set FFMPEG_BUILD_ARGS=%FFMPEG_BUILD_ARGS% --enable-debug --disable-optimizations)
 

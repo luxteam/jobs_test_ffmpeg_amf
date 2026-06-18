@@ -51,7 +51,7 @@ exit /b 0
     set COMMAND=%~2
     set ARGS=%~3
 
-    call %MSYS2_ROOT%msys2_shell.cmd -use-full-path -defterm -no-start -mingw64 -where "%TARGET_DIRECTORY%" -c "echo Working... && %COMMAND% %ARGS%"
+    call %MSYS2_ROOT%msys2_shell.cmd -use-full-path -defterm -no-start -mingw64 -where "%TARGET_DIRECTORY%" -c "export PKG_CONFIG_PATH=/c/deps/dav1d/lib/pkgconfig && echo Working... && %COMMAND% %ARGS%"
 
     endlocal & exit /b %errorlevel%
 
@@ -68,7 +68,7 @@ exit /b 0
     call :make_unix_path %AMF_INCLUDE_DIR%
     set AMF_UNIX_INCLUDE_DIR=^!UNIX_PATH^!
 
-    set FFMPEG_BUILD_ARGS="--enable-amf --extra-cflags=-I%AMF_UNIX_INCLUDE_DIR% --extra-cflags=-I%FFMPEG_UNIX_SRC_DIR% --target-os=win64 --arch=x86_64 --toolchain=msvc --disable-doc --disable-ffplay --enable-ffprobe --prefix=%FFMPEG_INSTALL_DIR%"
+    set FFMPEG_BUILD_ARGS="--enable-amf --enable-libdav1d --extra-cflags=-I%AMF_UNIX_INCLUDE_DIR% --extra-cflags=-I%FFMPEG_UNIX_SRC_DIR% --target-os=win64 --arch=x86_64 --toolchain=msvc --disable-doc --disable-ffplay --enable-ffprobe --prefix=%FFMPEG_INSTALL_DIR%"
 
     if "%FFMPEG_BUILD_TYPE%" == "debug" (set FFMPEG_BUILD_ARGS=%FFMPEG_BUILD_ARGS% --enable-debug --disable-optimizations)
 

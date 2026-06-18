@@ -42,12 +42,12 @@ AMF_GIT_URL    = os.environ.get("AMF_GIT_URL",    "https://github.com/GPUOpen-Li
 
 MSYS2_ROOT     = os.environ.get("MSYS2_ROOT", r"C:\msys64")
 WIN_DEPS_ROOT  = os.environ.get("WIN_DEPS_ROOT", r"C:\deps")
-WIN_DEPS_PKGCONFIG = [
-    os.path.join(WIN_DEPS_ROOT, d, "lib", "pkgconfig")
-    for d in ("dav1d", "x264", "x265", "svtav1")
-]
+# AMF-only build needs just the software AV1 decoder (dav1d) for AV1 output
+# verification; x264/x265/svtav1 are software ENCODERS only used by the quality
+# reference cases, which come from the compare build.
+WIN_DEPS_PKGCONFIG = [os.path.join(WIN_DEPS_ROOT, "dav1d", "lib", "pkgconfig")]
 # Linux pkg-config specs that must resolve before configure.
-LINUX_DEP_SPECS = ["dav1d >= 1.0.0", "x264", "x265", "SvtAv1Enc"]
+LINUX_DEP_SPECS = ["dav1d >= 1.0.0"]
 
 # --- Self-contained packaging ----------------------------------------------
 

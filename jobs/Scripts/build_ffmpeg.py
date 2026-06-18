@@ -101,12 +101,12 @@ def _preflight_deps(logger):
                 f"msys2 not found at {cfg.MSYS2_ROOT}. "
                 f"Install msys2 or set MSYS2_ROOT (see Ubuntu_build_instructions.txt / Windows build)."
             )
-        missing = [d for d in cfg.WIN_DEPS_PKGCONFIG if not os.path.isdir(d)]
-        if missing:
-            logger.warning("Dependency pkgconfig dirs not found under %s:", cfg.WIN_DEPS_ROOT)
-            for d in missing:
-                logger.warning("    %s", d)
-            logger.warning("ffmpeg configure may fail; set up C:\\deps per the build instructions.")
+        dav1d_pc = os.path.join(cfg.WIN_DEPS_ROOT, "dav1d", "lib", "pkgconfig", "dav1d.pc")
+        if not os.path.exists(dav1d_pc):
+            raise RuntimeError(
+                f"dav1d not found at {dav1d_pc}. Build/install dav1d to "
+                f"C:\\deps\\dav1d (MSVC, static) — see BUILD_AND_TEST.md."
+            )
     else:
         if shutil.which("pkg-config") is None:
             raise RuntimeError("pkg-config not found; sudo apt install pkg-config")

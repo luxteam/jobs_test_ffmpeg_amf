@@ -72,23 +72,32 @@ def _capture(cmd, cwd=None):
 # Sources & dependencies
 # ---------------------------------------------------------------------------
 
-def _ensure_sources(amf_dir, logger):
-    """Clone FFmpeg / AMF sources into amf_dir if they are missing."""
+def _ensure_sources(amf_dir, logger, ffmpeg_url=None, ffmpeg_ref=None,
+                    amf_url=None, amf_ref=None):
+    """Clone FFmpeg / AMF sources into amf_dir if they are missing.
+
+    ffmpeg_url/amf_url override the default repo (e.g. a fork); ffmpeg_ref/amf_ref
+    select a branch, tag, or commit (checked out after clone). Empty -> defaults.
+    """
     ffmpeg_src = os.path.join(amf_dir, cfg.FFMPEG_SRC_DIRNAME)
     amf_src    = os.path.join(amf_dir, cfg.AMF_SRC_DIRNAME)
     os.makedirs(amf_dir, exist_ok=True)
+    ffmpeg_url = ffmpeg_url or cfg.FFMPEG_GIT_URL
+    amf_url    = amf_url or cfg.AMF_GIT_URL
 
-    has_ffmpeg = os.path.exists(os.path.join(ffmpeg_src, "configure"))
-    if not has_ffmpeg:
-        logger.info(f"FFmpeg sources not found — cloning {cfg.FFMPEG_GIT_URL}")
-        if _run(["git", "clone", cfg.FFMPEG_GIT_URL, ffmpeg_src], logger) != 0:
+    if not os.path.exists(os.path.join(ffmpeg_src, "configure")):
+        logger.info("Cloning FFmpeg %s%s", ffmpeg_url, f" @ {ffmpeg_ref}" if ffmpeg_ref else "")
+        if _run(["git", "clone", ffmpeg_url, ffmpeg_src], logger) != 0:
             raise RuntimeError("git clone FFmpeg failed")
+        if ffmpeg_ref and _run(["git", "-C", ffmpeg_src, "checkout", ffmpeg_ref], logger) != 0:
+            raise RuntimeError(f"git checkout FFmpeg ref '{ffmpeg_ref}' failed")
 
-    has_amf = os.path.isdir(os.path.join(amf_src, "amf"))
-    if not has_amf:
-        logger.info(f"AMF sources not found — cloning {cfg.AMF_GIT_URL}")
-        if _run(["git", "clone", cfg.AMF_GIT_URL, amf_src], logger) != 0:
+    if not os.path.isdir(os.path.join(amf_src, "amf")):
+        logger.info("Cloning AMF %s%s", amf_url, f" @ {amf_ref}" if amf_ref else "")
+        if _run(["git", "clone", amf_url, amf_src], logger) != 0:
             raise RuntimeError("git clone AMF failed")
+        if amf_ref and _run(["git", "-C", amf_src, "checkout", amf_ref], logger) != 0:
+            raise RuntimeError(f"git checkout AMF ref '{amf_ref}' failed")
 
     return ffmpeg_src, amf_src
 
@@ -251,7 +260,8 @@ def _package_self_contained(ffmpeg_exe, ffprobe_exe, ffmpeg_src,
 # ---------------------------------------------------------------------------
 
 def build(amf_ffmpeg_dir=None, build_type="release",
-          artifacts_dir=None, package=True, logger=None):
+          artifacts_dir=None, package=True, logger=None,
+          ffmpeg_url=None, ffmpeg_ref=None, amf_url=None, amf_ref=None):
     """
     Build ffmpeg+AMF via the vendored build scripts and (optionally) package a
     self-contained zip artifact.
@@ -264,7 +274,8 @@ def build(amf_ffmpeg_dir=None, build_type="release",
     amf_dir = os.path.abspath(amf_ffmpeg_dir or cfg.AMF_FFMPEG_DIR)
     logger.info("amf-ffmpeg dir: %s", amf_dir)
 
-    ffmpeg_src, amf_src = _ensure_sources(amf_dir, logger)
+    ffmpeg_src, amf_src = _ensure_sources(amf_dir, logger,
+                                          ffmpeg_url, ffmpeg_ref, amf_url, amf_ref)
     _preflight_deps(logger)
 
     build_dir   = os.environ.get("FFMPEG_BUILD_DIR")   or os.path.join(amf_dir, "build_ffmpeg")
@@ -340,6 +351,14 @@ def main():
                    help="where to write the downloadable zip (default: <repo>/artifacts)")
     p.add_argument("--no_package", action="store_true",
                    help="skip building the downloadable zip artifact")
+    p.add_argument("--ffmpeg_url", default="",
+                   help="FFmpeg repo URL (default: upstream); use for forks")
+    p.add_argument("--ffmpeg_branch", default="",
+                   help="FFmpeg branch/tag/commit to check out (default: repo default branch)")
+    p.add_argument("--amf_url", default="",
+                   help="AMF repo URL (default: GPUOpen AMF)")
+    p.add_argument("--amf_branch", default="",
+                   help="AMF branch/tag/commit to check out (default: repo default branch)")
     args = p.parse_args()
 
     build_dir = build(
@@ -347,6 +366,10 @@ def main():
         build_type=args.build_type,
         artifacts_dir=(args.artifacts_dir or None),
         package=not args.no_package,
+        ffmpeg_url=(args.ffmpeg_url or None),
+        ffmpeg_ref=(args.ffmpeg_branch or None),
+        amf_url=(args.amf_url or None),
+        amf_ref=(args.amf_branch or None),
     )
     print(f"BUILD_PATH={build_dir}")
 

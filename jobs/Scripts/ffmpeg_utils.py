@@ -11,6 +11,7 @@ Note: metric collection (metadata, PSNR, SSIM, decode check, frame count)
 lives in the corresponding rule classes in rules/rule_impl/ffmpeg_rules.py.
 """
 
+import glob
 import logging
 import os
 import re
@@ -29,12 +30,33 @@ logger = logging.getLogger(__name__)
 _EXE_SUFFIX = ".exe" if os.name == "nt" else ""
 
 
+def _resolve_tool(build_path, name):
+    """
+    Locate ffmpeg/ffprobe under a build dir, supporting several layouts:
+      <build>/ffmpeg.exe               our in-framework / NAS builds (binaries at root)
+      <build>/bin/ffmpeg.exe           downloaded distros (gyan/BtbN essentials_build)
+      <build>/<subdir>/bin/ffmpeg.exe  distro extracted with its versioned top folder
+    Returns the first existing match; otherwise the root path so the caller's
+    existence check still fails with a sensible default.
+    """
+    exe = name + _EXE_SUFFIX
+    candidates = [
+        os.path.join(build_path, exe),
+        os.path.join(build_path, "bin", exe),
+    ]
+    candidates += sorted(glob.glob(os.path.join(build_path, "*", "bin", exe)))
+    for cand in candidates:
+        if os.path.isfile(cand):
+            return cand
+    return os.path.join(build_path, exe)
+
+
 def get_ffmpeg_path(build_path):
-    return os.path.join(build_path, "ffmpeg" + _EXE_SUFFIX)
+    return _resolve_tool(build_path, "ffmpeg")
 
 
 def get_ffprobe_path(build_path):
-    return os.path.join(build_path, "ffprobe" + _EXE_SUFFIX)
+    return _resolve_tool(build_path, "ffprobe")
 
 
 def get_ffmpeg_version(ffmpeg_exe):

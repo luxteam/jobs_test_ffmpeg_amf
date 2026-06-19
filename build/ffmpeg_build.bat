@@ -51,7 +51,7 @@ exit /b 0
     set COMMAND=%~2
     set ARGS=%~3
 
-    call %MSYS2_ROOT%msys2_shell.cmd -use-full-path -defterm -no-start -mingw64 -where "%TARGET_DIRECTORY%" -c "export PATH=/mingw64/bin:$PATH && export PKG_CONFIG_PATH=/c/deps/dav1d/lib/pkgconfig && echo PKGPATH=$PKG_CONFIG_PATH && which pkg-config && pkg-config --modversion dav1d ; echo Working... && %COMMAND% %ARGS%"
+    call %MSYS2_ROOT%msys2_shell.cmd -use-full-path -defterm -no-start -mingw64 -where "%TARGET_DIRECTORY%" -c "export PATH=/mingw64/bin:$PATH && export PKG_CONFIG_PATH=/c/deps/dav1d/lib/pkgconfig && echo Working... && %COMMAND% %ARGS%"
 
     endlocal & exit /b %errorlevel%
 

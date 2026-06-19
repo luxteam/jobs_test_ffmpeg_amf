@@ -154,6 +154,18 @@ def _ffmpeg_version(ffmpeg_src, ffmpeg_exe):
     return m.group(1) if m else "unknown"
 
 
+def _git_source_info(src_dir):
+    """Return (remote_url, 'branch @ shortsha') read back from a cloned repo."""
+    def g(*args):
+        rc, out = _capture(["git", "-C", src_dir] + list(args))
+        return out.strip() if rc == 0 else ""
+    url    = g("remote", "get-url", "origin") or "?"
+    branch = g("rev-parse", "--abbrev-ref", "HEAD")   # 'HEAD' if detached (tag/commit checkout)
+    commit = g("rev-parse", "--short", "HEAD")
+    ref    = branch if branch and branch != "HEAD" else "(detached)"
+    return url, (f"{ref} @ {commit}" if commit else ref)
+
+
 # ---------------------------------------------------------------------------
 # Self-contained packaging
 # ---------------------------------------------------------------------------
@@ -205,7 +217,7 @@ def _bundle_linux_libs(exes, lib_dir, logger):
     return copied
 
 
-def _package_self_contained(ffmpeg_exe, ffprobe_exe, ffmpeg_src,
+def _package_self_contained(ffmpeg_exe, ffprobe_exe, ffmpeg_src, amf_src,
                             build_type, artifacts_dir, logger):
     os.makedirs(artifacts_dir, exist_ok=True)
     version  = _ffmpeg_version(ffmpeg_src, ffmpeg_exe)
@@ -227,13 +239,19 @@ def _package_self_contained(ffmpeg_exe, ffprobe_exe, ffmpeg_src,
         bundled = _bundle_linux_libs([ffmpeg_exe, ffprobe_exe],
                                      os.path.join(stage, "lib"), logger)
 
+    ff_url, ff_ref   = _git_source_info(ffmpeg_src)
+    amf_url, amf_ref = _git_source_info(amf_src)
     info_lines = [
         "ffmpeg_amf build artifact",
-        f"version:    {version}",
-        f"platform:   {plat}",
-        f"build_type: {build_type}",
-        f"date:       {datetime.now().isoformat(timespec='seconds')}",
-        f"encoders:   {', '.join(cfg.REQUIRED_AMF_ENCODERS)}",
+        f"version:     {version}",
+        f"platform:    {plat}",
+        f"build_type:  {build_type}",
+        f"date:        {datetime.now().isoformat(timespec='seconds')}",
+        f"ffmpeg_repo: {ff_url}",
+        f"ffmpeg_ref:  {ff_ref}",
+        f"amf_repo:    {amf_url}",
+        f"amf_ref:     {amf_ref}",
+        f"encoders:    {', '.join(cfg.REQUIRED_AMF_ENCODERS)}",
         f"bundled libs ({len(bundled)}):",
     ] + [f"  - {os.path.basename(b)}" for b in bundled]
     with open(os.path.join(stage, "build_info.txt"), "w", encoding="utf-8") as f:
@@ -331,7 +349,7 @@ def build(amf_ffmpeg_dir=None, build_type="release",
 
     if package:
         out_dir = os.path.abspath(artifacts_dir or os.path.join(_REPO_ROOT, cfg.ARTIFACTS_DIRNAME))
-        _package_self_contained(ffmpeg_exe, ffprobe_exe, ffmpeg_src,
+        _package_self_contained(ffmpeg_exe, ffprobe_exe, ffmpeg_src, amf_src,
                                 build_type, out_dir, logger)
 
     logger.info("BUILD_PATH=%s", build_dir)

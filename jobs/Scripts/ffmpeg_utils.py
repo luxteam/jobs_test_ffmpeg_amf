@@ -47,6 +47,13 @@ def _resolve_tool(build_path, name):
     candidates += sorted(glob.glob(os.path.join(build_path, "*", "bin", exe)))
     for cand in candidates:
         if os.path.isfile(cand):
+            # Jenkins' unzip step drops the exec bit on Linux; restore it so the
+            # binary is runnable (otherwise ffmpeg fails with exit code 126).
+            if os.name != "nt":
+                try:
+                    os.chmod(cand, os.stat(cand).st_mode | 0o111)
+                except OSError:
+                    pass
             return cand
     return os.path.join(build_path, exe)
 

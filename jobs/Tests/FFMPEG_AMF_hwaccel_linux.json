@@ -1,0 +1,105 @@
+{
+    // Linux hwaccel matrix. The Windows DX paths (dxva2 / d3d11va / d3d12va) do
+    // not exist on Linux; the equivalents here are:
+    //   - amf   : AMF hwaccel decode -> AMF encode (cross-platform; needs AMF runtime)
+    //   - vaapi : VA-API GPU decode -> AMF encode (needs ffmpeg built with vaapi,
+    //             i.e. libva-dev present at configure, + a VA-API driver on the agent)
+    // VA-API frames are downloaded to system memory before the AMF encoder (no
+    // -hwaccel_output_format vaapi), since the AMF encoder does not accept VA-API
+    // surfaces directly. DRAFT: validate/extend on the Linux agent.
+    "cases": [
+
+        {
+            "case": "hwaccel_001",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "h264", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "Native AMF hwaccel decode - AMF encode", "H.264 input", "H.264 AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_002",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "hevc", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "Native AMF hwaccel decode - AMF encode", "H.264 input", "HEVC AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_003",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "av1", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "Native AMF hwaccel decode - AMF encode", "H.264 input", "AV1 AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_004",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "hevc", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "Native AMF hwaccel decode - AMF encode", "HEVC input", "HEVC AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_005",
+            "status": "active",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "av1", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "Native AMF hwaccel decode - AMF encode", "AV1 input", "AV1 AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+
+        {
+            "case": "hwaccel_006",
+            "status": "active",
+            "keys": "-hwaccel vaapi -i <input_video> -c:v h264_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "h264", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "VA-API decode - AMF encode", "H.264 input", "H.264 AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_007",
+            "status": "active",
+            "keys": "-hwaccel vaapi -i <input_video> -c:v hevc_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "hevc", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "VA-API decode - AMF encode", "H.264 input", "HEVC AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_008",
+            "status": "active",
+            "keys": "-hwaccel vaapi -i <input_video> -c:v av1_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "av1", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "VA-API decode - AMF encode", "H.264 input", "AV1 AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_009",
+            "status": "active",
+            "keys": "-hwaccel vaapi -i <input_video> -c:v hevc_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "hevc", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "VA-API decode - AMF encode", "HEVC input", "HEVC AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "hwaccel_010",
+            "status": "active",
+            "keys": "-hwaccel vaapi -i <input_video> -c:v av1_amf",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 90 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {"codec_name": "av1", "width": 1280, "height": 720, "pix_fmt": "yuv420p", "avg_frame_rate": "30/1"},
+            "description": ["Hardware decode/hwaccel tests", "VA-API decode - AMF encode", "AV1 input", "AV1 AMF output"],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        }
+
+    ]
+}

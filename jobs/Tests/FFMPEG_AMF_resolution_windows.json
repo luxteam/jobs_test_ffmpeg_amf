@@ -1,0 +1,246 @@
+{
+    "cases": [
+
+        {
+            "case": "resolution_001",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 640,
+                "height": 360
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "640x360 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_002",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 640,
+                "height": 360
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "640x360 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_003",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 640,
+                "height": 360
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "640x360 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_004",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "1280x720 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_005",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "1280x720 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_006",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "1280x720 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_007",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1920x1080:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1920,
+                "height": 1080
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "1920x1080 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_008",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1920x1080:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1920,
+                "height": 1080
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "1920x1080 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_009",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1920x1080:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1920,
+                "height": 1080
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "1920x1080 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_010",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=2560x1440:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 2560,
+                "height": 1440
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "2560x1440 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_011",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=2560x1440:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 2560,
+                "height": 1440
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "2560x1440 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_012",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=2560x1440:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 2560,
+                "height": 1440
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "2560x1440 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_013",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=3840x2160:rate=30 -frames:v 60 -c:v h264_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 3840,
+                "height": 2160
+            },
+            "description": [
+                "AMF resolution tests",
+                "H.264 output",
+                "3840x2160 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_014",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=3840x2160:rate=30 -frames:v 60 -c:v hevc_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 3840,
+                "height": 2160
+            },
+            "description": [
+                "AMF resolution tests",
+                "HEVC output",
+                "3840x2160 output"
+            ],
+            "rules": ["metadata_rule"]
+        },
+        {
+            "case": "resolution_015",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=3840x2160:rate=30 -frames:v 60 -c:v av1_amf -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 3840,
+                "height": 2160
+            },
+            "description": [
+                "AMF resolution tests",
+                "AV1 output",
+                "3840x2160 output"
+            ],
+            "rules": ["metadata_rule"]
+        }
+
+    ]
+}

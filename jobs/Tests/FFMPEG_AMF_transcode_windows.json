@@ -1,0 +1,68 @@
+{
+    "cases": [
+
+        {
+            "case": "transcode_001",
+            "status": "active",
+            "keys": "-i <input_video> -c:v h264_amf -usage transcoding -quality balanced -pix_fmt nv12",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Transcode tests",
+                "Software decode - AMF encode",
+                "Transcode H.264"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "transcode_002",
+            "status": "active",
+            "keys": "-i <input_video> -c:v hevc_amf -usage transcoding -quality balanced -pix_fmt nv12",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Transcode tests",
+                "Software decode - AMF encode",
+                "Transcode HEVC"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        },
+        {
+            "case": "transcode_003",
+            "status": "active",
+            "keys": "-i <input_video> -c:v av1_amf -usage transcoding -quality balanced -pix_fmt nv12",
+            "input_video_keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -t 3 -c:v mpeg4 -pix_fmt yuv420p",
+            "output_format": "mkv",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p",
+                "r_frame_rate": "30/1",
+                "avg_frame_rate": "30/1"
+            },
+            "description": [
+                "Transcode tests",
+                "Software decode - AMF encode",
+                "Transcode AV1"
+            ],
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+        }
+
+
+    ]
+}

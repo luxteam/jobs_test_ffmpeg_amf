@@ -279,7 +279,11 @@ def load_test_pack(path):
 
 def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
                     video_samples_dir,
-                    gpu_name, test_group, render_version, logger):
+                    gpu_name, test_group, render_version, logger,
+                    compare_ffmpeg_exe=None):
+    # Compare build used for reference_keys ("compare cases") encodes;
+    # falls back to the main build when no separate compare build is given.
+    compare_ffmpeg_exe = compare_ffmpeg_exe or ffmpeg_exe
     case_name = case["case"]
     case_output_dir = os.path.join(output_dir, case_name)
     os.makedirs(case_output_dir, exist_ok=True)
@@ -386,7 +390,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
             ref_case         = {"keys": case["reference_keys"]}
             ref_log          = os.path.join(case_output_dir, f"{case_name}_reference.log")
             ref_returncode   = fu.run_conversion(
-                ffmpeg_exe, ref_input_path, reference_output, ref_case, ref_log
+                compare_ffmpeg_exe, ref_input_path, reference_output, ref_case, ref_log
             )
             if ref_returncode == 0 and os.path.exists(reference_output):
                 generated_reference_path = reference_output
@@ -490,6 +494,26 @@ def run(args):
     Returns int exit code (0 = all passed, 1 = failures/errors).
     """
     logger = setup_logging(args.output)
+
+    # Resolve the ffmpeg build directory. Either supplied via --build_path, or
+    # produced on the fly by the in-framework build stage when --auto_build is set.
+    if not args.build_path:
+        if getattr(args, "auto_build", False):
+            import build_ffmpeg
+            logger.info("No --build_path given; running in-framework build stage (--auto_build)")
+            try:
+                args.build_path = build_ffmpeg.build(
+                    amf_ffmpeg_dir=(args.amf_ffmpeg_dir or None),
+                    build_type=args.build_type,
+                    logger=logger,
+                )
+            except Exception as e:
+                logger.error(f"In-framework ffmpeg build failed: {e}")
+                return 1
+        else:
+            logger.error("No ffmpeg build available: pass --build_path <dir> or use --auto_build")
+            return 1
+
     logger.info("=" * 60)
     logger.info("FFMPEG AMF Test Runner started")
     logger.info(f"  Build:          {args.build_path}")
@@ -502,10 +526,21 @@ def run(args):
     ffmpeg_exe  = fu.get_ffmpeg_path(args.build_path)
     ffprobe_exe = fu.get_ffprobe_path(args.build_path)
 
-    for exe, name in ((ffmpeg_exe, "ffmpeg.exe"), (ffprobe_exe, "ffprobe.exe")):
+    for exe in (ffmpeg_exe, ffprobe_exe):
         if not os.path.exists(exe):
-            logger.error(f"{name} not found at: {exe}")
+            logger.error(f"{os.path.basename(exe)} not found at: {exe}")
             return 1
+
+    # Compare build for "compare cases" (reference_keys encodes). Defaults to
+    # the main build when --compare_build_path is not supplied.
+    compare_build      = args.compare_build_path or args.build_path
+    compare_ffmpeg_exe = fu.get_ffmpeg_path(compare_build)
+    if not os.path.exists(compare_ffmpeg_exe):
+        logger.error(f"compare ffmpeg not found at: {compare_ffmpeg_exe}")
+        return 1
+    if compare_build != args.build_path:
+        logger.info(f"  Compare build:  {compare_build} "
+                    f"(version {fu.get_ffmpeg_version(compare_ffmpeg_exe)})")
 
     render_version = fu.get_ffmpeg_version(ffmpeg_exe)
     test_group     = os.path.splitext(os.path.basename(args.test_pack))[0]
@@ -549,7 +584,8 @@ def run(args):
                 case, group_dir,
                 ffmpeg_exe, ffprobe_exe,
                 args.video_samples,
-                args.gpu_name, test_group, render_version, logger
+                args.gpu_name, test_group, render_version, logger,
+                compare_ffmpeg_exe=compare_ffmpeg_exe
             )
         except Exception as e:
             logger.error(f"Case {case['case']} crashed: {e}\n{traceback.format_exc()}")
@@ -588,8 +624,18 @@ def run(args):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="FFMPEG AMF test runner")
-    parser.add_argument("--build_path",     required=True,
-                        help="Path to ffmpeg build directory (ffmpeg.exe + ffprobe.exe)")
+    parser.add_argument("--build_path",     required=False, default="",
+                        help="Path to ffmpeg build directory (ffmpeg + ffprobe). "
+                             "If omitted, pass --auto_build to build it in-framework.")
+    parser.add_argument("--compare_build_path", default="",
+                        help="ffmpeg build for compare/reference encodes "
+                             "(default: same as --build_path)")
+    parser.add_argument("--auto_build",      action="store_true",
+                        help="Build ffmpeg+AMF in-framework via build/ scripts when --build_path is omitted")
+    parser.add_argument("--amf_ffmpeg_dir",  default="",
+                        help="Path to amf-ffmpeg sources/scripts for --auto_build (default: auto-detect)")
+    parser.add_argument("--build_type",      default="release", choices=["debug", "release"],
+                        help="ffmpeg build type for --auto_build (default: release)")
     parser.add_argument("--video_samples",  required=True,
                         help="Folder containing input video files.")
     parser.add_argument("--test_pack",   required=True,

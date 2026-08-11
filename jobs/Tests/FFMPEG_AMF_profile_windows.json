@@ -1,0 +1,269 @@
+{
+    "cases": [
+
+        {
+            "case": "profile_001",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=640x360:rate=30 -frames:v 60 -c:v h264_amf -profile constrained_baseline -level 3.1 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "profile": "Constrained Baseline",
+                "level": 31,
+                "width": 640,
+                "height": 360
+            },
+            "description": [
+                "Profile / level tests",
+                "H.264 output",
+                "Constrained baseline profile",
+                "Level 3.1"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_002",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v h264_amf -profile main -level 4.0 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "profile": "Main",
+                "level": 40,
+                "width": 1280,
+                "height": 720
+            },
+            "description": [
+                "Profile / level tests",
+                "H.264 output",
+                "Main profile",
+                "Level 4.0"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_003",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1920x1080:rate=30 -frames:v 60 -c:v h264_amf -profile high -level 4.1 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "profile": "High",
+                "level": 41,
+                "width": 1920,
+                "height": 1080
+            },
+            "description": [
+                "Profile / level tests",
+                "H.264 output",
+                "High profile",
+                "Level 4.1"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_004",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1920x1080:rate=30 -frames:v 60 -c:v h264_amf -profile constrained_high -level 4.1 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "profile": "Constrained High",
+                "level": 41,
+                "width": 1920,
+                "height": 1080
+            },
+            "description": [
+                "Profile / level tests",
+                "H.264 output",
+                "Constrained high profile",
+                "Level 4.1"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_005",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=3840x2160:rate=30 -frames:v 60 -c:v h264_amf -profile high -level 5.1 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "h264",
+                "profile": "High",
+                "level": 51,
+                "width": 3840,
+                "height": 2160
+            },
+            "description": [
+                "Profile / level tests",
+                "H.264 output",
+                "High profile",
+                "Level 5.1"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_006",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v hevc_amf -profile main -level 4.0 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "profile": "Main",
+                "level": 120,
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p"
+            },
+            "description": [
+                "Profile / level tests",
+                "HEVC output",
+                "Main profile",
+                "Level 4.0 / 120",
+                "Pixel format nv12 / yuv420p"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_007",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1920x1080:rate=60 -frames:v 120 -c:v hevc_amf -profile main -level 5.0 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "profile": "Main",
+                "level": 150,
+                "width": 1920,
+                "height": 1080,
+                "pix_fmt": "yuv420p"
+            },
+            "description": [
+                "Profile / level tests",
+                "HEVC output",
+                "Main profile",
+                "Level 5.0 / 150",
+                "Pixel format nv12 / yuv420p"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_008",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=3840x2160:rate=30 -frames:v 60 -c:v hevc_amf -profile main -level 5.1 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "profile": "Main",
+                "level": 153,
+                "width": 3840,
+                "height": 2160,
+                "pix_fmt": "yuv420p"
+            },
+            "description": [
+                "Profile / level tests",
+                "HEVC output",
+                "Main profile",
+                "Level 5.1 / 153",
+                "Pixel format nv12 / yuv420p"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_009",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=3840x2160:rate=30,format=p010le -frames:v 60 -c:v hevc_amf -profile main10 -level 5.1 -pix_fmt p010le",
+            "expected_metadata": {
+                "codec_name": "hevc",
+                "profile": "Main 10",
+                "level": 153,
+                "width": 3840,
+                "height": 2160,
+                "pix_fmt": "yuv420p10le"
+            },
+            "description": [
+                "Profile / level tests",
+                "HEVC output",
+                "Main10 profile",
+                "Level 5.1 / 153",
+                "Pixel format p010le / yuv420p10le"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_010",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1280x720:rate=30 -frames:v 60 -c:v av1_amf -level 4.0 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "profile": "Main",
+                "level": 8,
+                "width": 1280,
+                "height": 720,
+                "pix_fmt": "yuv420p"
+            },
+            "description": [
+                "Profile / level tests",
+                "AV1 output",
+                "Main profile",
+                "Level 4.0 / 8",
+                "Pixel format nv12 / yuv420p"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_011",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=1920x1080:rate=60 -frames:v 120 -c:v av1_amf -level 5.0 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "profile": "Main",
+                "level": 12,
+                "width": 1920,
+                "height": 1080,
+                "pix_fmt": "yuv420p"
+            },
+            "description": [
+                "Profile / level tests",
+                "AV1 output",
+                "Main profile",
+                "Level 5.0 / 12",
+                "Pixel format nv12 / yuv420p"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_012",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=3840x2160:rate=30 -frames:v 60 -c:v av1_amf -level 5.1 -pix_fmt nv12",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "profile": "Main",
+                "level": 13,
+                "width": 3840,
+                "height": 2160,
+                "pix_fmt": "yuv420p"
+            },
+            "description": [
+                "Profile / level tests",
+                "AV1 output",
+                "Main profile",
+                "Level 5.1 / 13",
+                "Pixel format nv12 / yuv420p"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        },
+        {
+            "case": "profile_013",
+            "status": "active",
+            "keys": "-f lavfi -i testsrc2=size=3840x2160:rate=30,format=p010le -frames:v 60 -c:v av1_amf -level 5.1 -pix_fmt p010le",
+            "expected_metadata": {
+                "codec_name": "av1",
+                "profile": "Main",
+                "level": 13,
+                "width": 3840,
+                "height": 2160,
+                "pix_fmt": "yuv420p10le"
+            },
+            "description": [
+                "Profile / level tests",
+                "AV1 output",
+                "Main profile",
+                "Level 5.1 / 13",
+                "Pixel format p010le / yuv420p10le"
+            ],
+            "rules": ["metadata_rule", "decode_rule"]
+        }
+
+    ]
+}

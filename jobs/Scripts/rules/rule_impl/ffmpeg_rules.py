@@ -422,6 +422,161 @@ class SSIMRule(Rule):
                     )
 
 
+class VMAFRule(Rule):
+    """
+    Measures VMAF between the source input (reference) and the AMF-encoded output
+    (distorted) using ffmpeg's libvmaf filter.
+
+    IMPORTANT: libvmaf is NOT compiled into the in-framework AMF ffmpeg build, so
+    this rule computes the metric with the *compare* build
+    (context["compare_ffmpeg_exe"]) - a prebuilt VMAF-capable ffmpeg - and NOT
+    context["ffmpeg_exe"]. Without a compare ffmpeg the rule skips gracefully.
+
+    Full-reference metric: it needs a source to compare against, so it is skipped
+    when has_reference is False (lavfi source with no saved input) or the encode
+    failed. Range 0-100. Default threshold 80.0 (overridable per case via
+    "vmaf_threshold").
+
+    When a software reference_video also exists (cases with reference_keys), it is
+    scored too and the AMF result is flagged if it is significantly lower than the
+    non-AMF reference (vmaf_reference_tolerance, default 2.0 points).
+    """
+
+    DEFAULT_THRESHOLD      = 80.0   # VMAF floor; override per case via "vmaf_threshold"
+    VMAF_COMPARE_TOLERANCE = 2.0    # points: AMF may be this much below non-AMF ref before error
+
+    def __init__(self, case, json_content):
+        super().__init__(
+            case, json_content,
+            default_message="VMAF score is below acceptable threshold",
+            description="Compare VMAF between input and output video using FFMPEG libvmaf filter"
+        )
+
+    def should_be_executed(self):
+        return True
+
+    def _measure_vmaf(self, ffmpeg_exe, input_video, output_video, log_path):
+        # libvmaf expects the distorted (encoded output) as the MAIN input and the
+        # pristine source as the REFERENCE, so the ffmpeg inputs are ordered
+        #   -i <output/distorted>  -i <input/reference>
+        # (VMAF is asymmetric, so this order matters, unlike psnr/ssim).
+        if _needs_pts_normalization(self.case):
+            cmd = (f'"{ffmpeg_exe}" -i "{output_video}" -i "{input_video}"'
+                   f' -filter_complex'
+                   f' "[0:v]settb=1/90000,setpts=N/FRAME_RATE/TB[dist];'
+                   f'[1:v]settb=1/90000,setpts=N/FRAME_RATE/TB[ref];'
+                   f'[dist][ref]libvmaf"'
+                   f' -f null -')
+            logger.info("Measuring VMAF with PTS normalization (MKV<->non-MKV)")
+        else:
+            cmd = (f'"{ffmpeg_exe}" -i "{output_video}" -i "{input_video}"'
+                   f' -lavfi libvmaf -f null -')
+            logger.info("Measuring VMAF (ffmpeg libvmaf filter)")
+
+        try:
+            result = subprocess.run(cmd, stderr=subprocess.PIPE, text=True,
+                                    timeout=600, shell=True)
+            with open(log_path, "w", encoding="utf-8") as f:
+                f.write(result.stderr)
+            match = re.search(r"VMAF score:\s*(\S+)", result.stderr)
+            if match:
+                vmaf = float(match.group(1))
+                logger.info(f"VMAF score: {vmaf}")
+                return vmaf, ""
+            logger.error("Could not parse VMAF score")
+            return None, _extract_stderr_hint(result.stderr)
+        except Exception as e:
+            logger.error(f"VMAF error: {e}")
+            return None, ""
+
+    def apply(self, context):
+        if not context.get("has_reference"):
+            logger.info("VMAFRule: skipped - no reference input video (lavfi source)")
+            return
+
+        if not context.get("output_exists"):
+            logger.info("VMAFRule: skipped - output video not produced")
+            return
+
+        if context.get("returncode") != 0:
+            logger.info("VMAFRule: skipped - conversion failed, VMAF on corrupt output is not meaningful")
+            return
+
+        # libvmaf lives in the compare build, not the AMF ffmpeg.
+        vmaf_ffmpeg = context.get("compare_ffmpeg_exe")
+        if not vmaf_ffmpeg:
+            logger.warning("VMAFRule: skipped - no VMAF-capable ffmpeg (compare_ffmpeg_exe) in context")
+            return
+
+        vmaf_log = os.path.join(
+            os.path.dirname(context["psnr_log"]), f"{self.case['case']}_vmaf.log"
+        )
+        vmaf, stderr_hint = self._measure_vmaf(
+            vmaf_ffmpeg, context["input_video"], context["output_video"], vmaf_log
+        )
+        self.json_content["vmaf"] = vmaf
+
+        if os.path.exists(vmaf_log):
+            results_dir = context.get("results_dir", "")
+            self.json_content["vmaf_log"] = (
+                os.path.relpath(vmaf_log, results_dir).replace("\\", "/")
+            )
+
+        threshold = self.case.get("vmaf_threshold", self.DEFAULT_THRESHOLD)
+
+        if vmaf is None:
+            msg = "VMAF measurement failed - no score returned by ffmpeg"
+            if stderr_hint:
+                msg += "\n" + stderr_hint
+            self.add_error(msg)
+            return
+
+        if vmaf < threshold:
+            self.add_error(
+                f"Unacceptable VMAF: {vmaf:.2f} (threshold: {threshold})"
+            )
+        else:
+            logger.info(f"VMAFRule: VMAF={vmaf:.2f} >= threshold={threshold} - OK")
+
+        self.json_content["message"].append({
+            "issue":       f"VMAF: {vmaf:.2f}",
+            "description": "Quality metrics"
+        })
+
+        # Optional: also score the software (non-AMF) reference and compare.
+        if context.get("reference_video"):
+            ref_baseline = context.get("reference_input_video") or context["input_video"]
+            ref_vmaf_log = os.path.join(
+                os.path.dirname(context["psnr_log"]), f"{self.case['case']}_vmaf_reference.log"
+            )
+            ref_vmaf = self._measure_vmaf(
+                vmaf_ffmpeg, ref_baseline, context["reference_video"], ref_vmaf_log
+            )[0]
+            self.json_content["vmaf_reference"] = ref_vmaf
+            if os.path.exists(ref_vmaf_log):
+                self.json_content["vmaf_reference_log"] = (
+                    os.path.relpath(ref_vmaf_log, context.get("results_dir", "")).replace("\\", "/")
+                )
+            if ref_vmaf is None:
+                logger.warning("VMAFRule: reference VMAF measurement failed")
+            else:
+                self.json_content["message"].append({
+                    "issue":       f"VMAF reference (non-AMF): {ref_vmaf:.2f}",
+                    "description": "Reference quality metrics"
+                })
+                tolerance = self.case.get("vmaf_reference_tolerance", self.VMAF_COMPARE_TOLERANCE)
+                if vmaf < ref_vmaf - tolerance:
+                    self.add_error(
+                        f"AMF VMAF ({vmaf:.2f}) is significantly lower than "
+                        f"non-AMF reference ({ref_vmaf:.2f}), tolerance={tolerance}"
+                    )
+                else:
+                    logger.info(
+                        f"VMAFRule: AMF VMAF ({vmaf:.2f}) within tolerance of "
+                        f"reference ({ref_vmaf:.2f}) - OK"
+                    )
+
+
 class DecodeRule(Rule):
     """
     Decodes the output video with ffmpeg -v error and checks that stderr is empty.

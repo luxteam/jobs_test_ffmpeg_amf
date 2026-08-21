@@ -11,6 +11,7 @@ from rules.rule_impl.ffmpeg_rules import (
     MetadataRule,
     PSNRRule,
     SSIMRule,
+    VMAFRule,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ RULES = {
     "metadata_rule":      MetadataRule,
     "psnr_rule":          PSNRRule,
     "ssim_rule":          SSIMRule,
+    "vmaf_rule":          VMAFRule,
 }
 
 # Rules applied to every test case regardless of case["rules"]

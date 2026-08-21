@@ -411,6 +411,8 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     context = {
         "ffmpeg_exe":     ffmpeg_exe,
         "ffprobe_exe":    ffprobe_exe,
+        # VMAF-capable ffmpeg (libvmaf is not in the AMF build) — used by vmaf_rule.
+        "compare_ffmpeg_exe": compare_ffmpeg_exe,
         "input_video":    input_video_path,
         "output_video":   output_video,
         "output_exists":  os.path.exists(output_video),

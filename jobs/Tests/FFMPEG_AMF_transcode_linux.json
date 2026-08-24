@@ -19,7 +19,7 @@
                 "Software decode - AMF encode",
                 "Transcode H.264"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "transcode_002",
@@ -39,7 +39,7 @@
                 "Software decode - AMF encode",
                 "Transcode HEVC"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "transcode_003",
@@ -60,7 +60,7 @@
                 "Software decode - AMF encode",
                 "Transcode AV1"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         }
 
 

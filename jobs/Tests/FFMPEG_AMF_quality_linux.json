@@ -21,7 +21,7 @@
                 "Quality tests",
                 "H.264 output"
             ],
-            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule", "vmaf_rule"]
         },
         {
             "case": "quality_002",
@@ -44,7 +44,7 @@
                 "Lossless video sample input",
                 "H.264 output"
             ],
-            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule", "vmaf_rule"]
         },
         {
             "case": "quality_003",
@@ -66,7 +66,7 @@
                 "Quality tests",
                 "HEVC output"
             ],
-            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule", "vmaf_rule"]
         },
         {
             "case": "quality_004",
@@ -89,7 +89,7 @@
                 "Lossless video sample input",
                 "HEVC output"
             ],
-            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule", "vmaf_rule"]
         },
         {
             "case": "quality_005",
@@ -111,7 +111,7 @@
                 "Quality tests",
                 "AV1 output"
             ],
-            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule", "vmaf_rule"]
         },
         {
             "case": "quality_006",
@@ -134,7 +134,7 @@
                 "Lossless video sample input",
                 "AV1 output"
             ],
-            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule"]
+            "rules": ["metadata_rule","format_rule", "psnr_rule", "ssim_rule", "vmaf_rule"]
         }
 
     ]

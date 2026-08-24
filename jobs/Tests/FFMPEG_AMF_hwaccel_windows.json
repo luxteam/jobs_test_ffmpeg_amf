@@ -19,7 +19,7 @@
                 "H.264 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_002",
@@ -40,7 +40,7 @@
                 "H.264 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -61,7 +61,7 @@
                 "H.264 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_004",
@@ -82,7 +82,7 @@
                 "H.264 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -103,7 +103,7 @@
                 "H.264 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_006",
@@ -124,7 +124,7 @@
                 "H.264 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -145,7 +145,7 @@
                 "HEVC input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_008",
@@ -166,7 +166,7 @@
                 "HEVC video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -187,7 +187,7 @@
                 "HEVC input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_010",
@@ -208,7 +208,7 @@
                 "HEVC video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -229,7 +229,7 @@
                 "HEVC input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_012",
@@ -250,7 +250,7 @@
                 "HEVC video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -271,7 +271,7 @@
                 "H.264 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_014",
@@ -292,7 +292,7 @@
                 "H.264 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -313,7 +313,7 @@
                 "H.264 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_016",
@@ -334,7 +334,7 @@
                 "H.264 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -355,7 +355,7 @@
                 "H.264 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_018",
@@ -376,7 +376,7 @@
                 "H.264 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -397,7 +397,7 @@
                 "HEVC input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_020",
@@ -418,7 +418,7 @@
                 "HEVC video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -439,7 +439,7 @@
                 "HEVC input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_022",
@@ -460,7 +460,7 @@
                 "HEVC video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -481,7 +481,7 @@
                 "HEVC input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_024",
@@ -502,7 +502,7 @@
                 "HEVC video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -524,7 +524,7 @@
                 "AV1 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_026",
@@ -545,7 +545,7 @@
                 "AV1 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -567,7 +567,7 @@
                 "AV1 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_028",
@@ -588,7 +588,7 @@
                 "AV1 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -610,7 +610,7 @@
                 "AV1 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_030",
@@ -631,7 +631,7 @@
                 "AV1 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -652,7 +652,7 @@
                 "H.264 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_032",
@@ -673,7 +673,7 @@
                 "H.264 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -694,7 +694,7 @@
                 "H.264 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_034",
@@ -715,7 +715,7 @@
                 "H.264 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -736,7 +736,7 @@
                 "H.264 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_036",
@@ -757,7 +757,7 @@
                 "H.264 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -778,7 +778,7 @@
                 "HEVC input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_038",
@@ -799,7 +799,7 @@
                 "HEVC video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -820,7 +820,7 @@
                 "HEVC input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_040",
@@ -841,7 +841,7 @@
                 "HEVC video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -862,7 +862,7 @@
                 "HEVC input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_042",
@@ -883,7 +883,7 @@
                 "HEVC video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -905,7 +905,7 @@
                 "AV1 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_044",
@@ -926,7 +926,7 @@
                 "AV1 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -948,7 +948,7 @@
                 "AV1 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_046",
@@ -969,7 +969,7 @@
                 "AV1 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -991,7 +991,7 @@
                 "AV1 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_048",
@@ -1012,7 +1012,7 @@
                 "AV1 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1033,7 +1033,7 @@
                 "H.264 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_050",
@@ -1054,7 +1054,7 @@
                 "H.264 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1075,7 +1075,7 @@
                 "H.264 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_052",
@@ -1096,7 +1096,7 @@
                 "H.264 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1117,7 +1117,7 @@
                 "H.264 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_054",
@@ -1138,7 +1138,7 @@
                 "H.264 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1159,7 +1159,7 @@
                 "HEVC input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_056",
@@ -1180,7 +1180,7 @@
                 "HEVC video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1201,7 +1201,7 @@
                 "HEVC input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_058",
@@ -1222,7 +1222,7 @@
                 "HEVC video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1243,7 +1243,7 @@
                 "HEVC input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_060",
@@ -1264,7 +1264,7 @@
                 "HEVC video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1286,7 +1286,7 @@
                 "AV1 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_062",
@@ -1307,7 +1307,7 @@
                 "AV1 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1329,7 +1329,7 @@
                 "AV1 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_064",
@@ -1350,7 +1350,7 @@
                 "AV1 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1372,7 +1372,7 @@
                 "AV1 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_066",
@@ -1393,7 +1393,7 @@
                 "AV1 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1414,7 +1414,7 @@
                 "H.264 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_068",
@@ -1435,7 +1435,7 @@
                 "H.264 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1456,7 +1456,7 @@
                 "H.264 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_070",
@@ -1477,7 +1477,7 @@
                 "H.264 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1498,7 +1498,7 @@
                 "H.264 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_072",
@@ -1519,7 +1519,7 @@
                 "H.264 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1540,7 +1540,7 @@
                 "HEVC input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_074",
@@ -1561,7 +1561,7 @@
                 "HEVC video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1582,7 +1582,7 @@
                 "HEVC input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_076",
@@ -1603,7 +1603,7 @@
                 "HEVC video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1624,7 +1624,7 @@
                 "HEVC input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_078",
@@ -1645,7 +1645,7 @@
                 "HEVC video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1667,7 +1667,7 @@
                 "AV1 input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_080",
@@ -1688,7 +1688,7 @@
                 "AV1 video sample input",
                 "H.264 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1710,7 +1710,7 @@
                 "AV1 input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_082",
@@ -1731,7 +1731,7 @@
                 "AV1 video sample input",
                 "HEVC AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1753,7 +1753,7 @@
                 "AV1 input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_084",
@@ -1774,7 +1774,7 @@
                 "AV1 video sample input",
                 "AV1 AMF output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1796,7 +1796,7 @@
                 "D3D11 H.264 input",
                 "HEVC AMF TS output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_086",
@@ -1818,7 +1818,7 @@
                 "H.264 video sample input",
                 "HEVC AMF TS output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1840,7 +1840,7 @@
                 "AMF H.264 input",
                 "AV1 AMF MKV output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_088",
@@ -1862,7 +1862,7 @@
                 "H.264 video sample input",
                 "AV1 AMF MKV output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
 
         {
@@ -1884,7 +1884,7 @@
                 "AMF H.264 input",
                 "AV1 AMF WEBM output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         },
         {
             "case": "hwaccel_090",
@@ -1906,7 +1906,7 @@
                 "H.264 video sample input",
                 "AV1 AMF WEBM output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule", "format_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule", "format_rule"]
         }
 
     ]

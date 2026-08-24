@@ -406,7 +406,7 @@
                 "H.264 input",
                 "H.264 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_020",
@@ -427,7 +427,7 @@
                 "H.264 video sample input",
                 "H.264 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
 
         {
@@ -448,7 +448,7 @@
                 "H.264 input",
                 "HEVC AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_022",
@@ -469,7 +469,7 @@
                 "H.264 video sample input",
                 "HEVC AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
 
         {
@@ -490,7 +490,7 @@
                 "H.264 input",
                 "AV1 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_024",
@@ -511,7 +511,7 @@
                 "H.264 video sample input",
                 "AV1 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
 
         {
@@ -532,7 +532,7 @@
                 "HEVC input",
                 "H.264 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_026",
@@ -553,7 +553,7 @@
                 "HEVC video sample input",
                 "H.264 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
 
         {
@@ -574,7 +574,7 @@
                 "HEVC input",
                 "HEVC AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_028",
@@ -595,7 +595,7 @@
                 "HEVC video sample input",
                 "HEVC AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
 
         {
@@ -616,7 +616,7 @@
                 "HEVC input",
                 "AV1 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_030",
@@ -637,7 +637,7 @@
                 "HEVC video sample input",
                 "AV1 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
 
         {
@@ -660,7 +660,7 @@
                 "AV1 input",
                 "H.264 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_032",
@@ -682,7 +682,7 @@
                 "AV1 video sample input",
                 "H.264 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
 
         {
@@ -705,7 +705,7 @@
                 "AV1 input",
                 "HEVC AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_034",
@@ -727,7 +727,7 @@
                 "AV1 video sample input",
                 "HEVC AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
 
         {
@@ -750,7 +750,7 @@
                 "AV1 input",
                 "AV1 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         },
         {
             "case": "filter_036",
@@ -772,7 +772,7 @@
                 "AV1 video sample input",
                 "AV1 AMF yuv420p output"
             ],
-            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "decode_rule"]
+            "rules": ["metadata_rule", "psnr_rule", "ssim_rule", "vmaf_rule", "decode_rule"]
         }
 
     ]

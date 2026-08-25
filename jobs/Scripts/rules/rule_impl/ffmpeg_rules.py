@@ -117,6 +117,11 @@ class MetadataRule(Rule):
                 )
                 all_match = False
             elif str(actual_value) != str(expected_value):
+                # av1_amf pads coded height to +2 when height is not 16-aligned
+                # (360->362, 1080->1082); accept height or height+2 for AV1.
+                if (field == "height" and str(actual.get("codec_name")) == "av1"
+                        and str(actual_value) == str(int(expected_value) + 2)):
+                    continue
                 self.add_error(
                     f"Metadata mismatch for '{field}' in {label}: expected={expected_value}, actual={actual_value}"
                 )

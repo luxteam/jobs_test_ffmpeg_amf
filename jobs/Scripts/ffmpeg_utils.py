@@ -107,9 +107,9 @@ def build_conversion_command(ffmpeg_exe, input_video, output_video, case):
 # the hwaccel pack), its process tree is killed and CONVERSION_TIMEOUT_RC is
 # returned, so the case fails and testing continues. Override via env var.
 try:
-    CONVERSION_TIMEOUT_SEC = int(os.environ.get("FFMPEG_CONVERSION_TIMEOUT", "300"))
+    CONVERSION_TIMEOUT_SEC = int(os.environ.get("FFMPEG_CONVERSION_TIMEOUT", "30"))
 except ValueError:
-    CONVERSION_TIMEOUT_SEC = 300
+    CONVERSION_TIMEOUT_SEC = 30
 
 # Sentinel exit code for a killed/timed-out conversion (124 = the conventional
 # "command timed out" code used by GNU `timeout`). ffmpeg_rules reports it as a

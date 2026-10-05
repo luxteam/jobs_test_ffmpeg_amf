@@ -123,8 +123,11 @@ def _kill_process_tree(proc):
     plain proc.kill() would leave it - and its GPU work - running."""
     try:
         if os.name == "nt":
+            # taskkill can itself block while the OS tears down a thread wedged
+            # in the GPU driver, so bound it; the except falls back to proc.kill.
             subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           timeout=15)
         else:
             os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
     except Exception as kill_err:
@@ -158,7 +161,7 @@ def run_conversion(ffmpeg_exe, input_video, output_video, case, log_path,
         except subprocess.TimeoutExpired:
             _kill_process_tree(proc)
             try:
-                proc.wait(timeout=30)
+                proc.wait(timeout=10)
             except subprocess.TimeoutExpired:
                 logger.error("ffmpeg did not exit even after kill")
             msg = (f"FFMPEG conversion timed out after {timeout}s and was killed "

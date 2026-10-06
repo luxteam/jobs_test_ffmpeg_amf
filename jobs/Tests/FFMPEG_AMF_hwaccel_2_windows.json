@@ -277,7 +277,7 @@
         {
             "case": "hwaccel_014",
             "status": "active",
-            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v h264_amf",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -fps_mode passthrough -c:v h264_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -320,7 +320,7 @@
         {
             "case": "hwaccel_016",
             "status": "active",
-            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v hevc_amf",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -fps_mode passthrough -c:v hevc_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -363,7 +363,7 @@
         {
             "case": "hwaccel_018",
             "status": "active",
-            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -c:v av1_amf",
+            "keys": "-hwaccel d3d11va -hwaccel_output_format d3d11 -i <input_video> -fps_mode passthrough -c:v av1_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -658,7 +658,7 @@
         {
             "case": "hwaccel_032",
             "status": "active",
-            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v h264_amf",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -fps_mode passthrough -c:v h264_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -701,7 +701,7 @@
         {
             "case": "hwaccel_034",
             "status": "active",
-            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v hevc_amf",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -fps_mode passthrough -c:v hevc_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -744,7 +744,7 @@
         {
             "case": "hwaccel_036",
             "status": "active",
-            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -c:v av1_amf",
+            "keys": "-hwaccel amf -hwaccel_output_format amf -i <input_video> -fps_mode passthrough -c:v av1_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -1039,7 +1039,7 @@
         {
             "case": "hwaccel_050",
             "status": "active",
-            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v h264_amf",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -fps_mode passthrough -c:v h264_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -1082,7 +1082,7 @@
         {
             "case": "hwaccel_052",
             "status": "active",
-            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v hevc_amf",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -fps_mode passthrough -c:v hevc_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -1125,7 +1125,7 @@
         {
             "case": "hwaccel_054",
             "status": "active",
-            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -c:v av1_amf",
+            "keys": "-hwaccel d3d12va -hwaccel_output_format d3d12 -i <input_video> -fps_mode passthrough -c:v av1_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -1420,7 +1420,7 @@
         {
             "case": "hwaccel_068",
             "status": "active",
-            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v h264_amf",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -fps_mode passthrough -c:v h264_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -1463,7 +1463,7 @@
         {
             "case": "hwaccel_070",
             "status": "active",
-            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v hevc_amf",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -fps_mode passthrough -c:v hevc_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {
@@ -1506,7 +1506,7 @@
         {
             "case": "hwaccel_072",
             "status": "active",
-            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -c:v av1_amf",
+            "keys": "-init_hw_device vulkan=vk:0 -hwaccel vulkan -hwaccel_output_format vulkan -i <input_video> -fps_mode passthrough -c:v av1_amf",
             "input_video": "reference_av1.mkv",
             "input_video_format": "mkv",
             "expected_metadata": {

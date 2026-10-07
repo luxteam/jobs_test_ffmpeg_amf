@@ -54,7 +54,12 @@ class ConversionSuccessRule(Rule):
 
     def apply(self, context):
         returncode = context.get("returncode")
-        if returncode is None or returncode != 0:
+        if returncode == 124:  # CONVERSION_TIMEOUT_RC from ffmpeg_utils.run_conversion
+            self.add_error(
+                "FFMPEG conversion timed out and was killed "
+                "(suspected driver hang / HW-surface deadlock)"
+            )
+        elif returncode is None or returncode != 0:
             self.add_error(
                 f"FFMPEG conversion failed with exit code: {returncode}"
             )

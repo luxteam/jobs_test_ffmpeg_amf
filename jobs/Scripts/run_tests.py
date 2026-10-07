@@ -346,6 +346,7 @@ def run_single_case(case, output_dir, ffmpeg_exe, ffprobe_exe,
     report["render_time"]    = elapsed
     report["execution_time"] = elapsed
     logger.info(f"[{case_name}] Conversion done in {elapsed:.1f}s, exit={returncode}")
+    report["conversion_timed_out"] = (returncode == fu.CONVERSION_TIMEOUT_RC)
 
     # ---- 2.5. Generate reference video (non-AMF) for quality comparison ----
     generated_reference_path       = None
@@ -564,6 +565,18 @@ def run(args):
     all_reports       = []
     cases_with_status = []
 
+    # Driver-hang guard: a conversion timeout means run_conversion had to
+    # force-kill a wedged ffmpeg (suspected driver hang). On a broadly-broken
+    # driver every case wedges, and probing each one costs the full timeout and
+    # can leave the GPU worse. After this many consecutive timeouts, skip the
+    # rest of the pack. Set FFMPEG_HANG_SKIP_THRESHOLD=0 to disable.
+    try:
+        hang_skip_threshold = int(os.environ.get("FFMPEG_HANG_SKIP_THRESHOLD", "2"))
+    except ValueError:
+        hang_skip_threshold = 2
+    consecutive_timeouts = 0
+    skip_rest_for_hang   = False
+
     for case in cases:
         case_copy = dict(case)
 
@@ -572,6 +585,23 @@ def run(args):
             report = make_case_report(case, group_dir, args.gpu_name, test_group, render_version)
             report["test_status"]            = "skipped"
             report["group_timeout_exceeded"] = False
+            write_case_report(group_dir, report)
+            all_reports.append(report)
+            case_copy["status"] = "skipped"
+            cases_with_status.append(case_copy)
+            continue
+
+        if skip_rest_for_hang:
+            logger.warning(f"[{case['case']}] Skipped - suspected driver hang earlier in this pack")
+            report = make_case_report(case, group_dir, args.gpu_name, test_group, render_version)
+            report["test_status"]            = "skipped"
+            report["group_timeout_exceeded"] = False
+            report["message"].append({
+                "issue":       f"Skipped: {hang_skip_threshold}+ consecutive conversion "
+                               "timeouts earlier in this pack (suspected driver hang); "
+                               "remaining cases not run to avoid compounding the GPU wedge.",
+                "description": "Set FFMPEG_HANG_SKIP_THRESHOLD=0 to probe every case anyway."
+            })
             write_case_report(group_dir, report)
             all_reports.append(report)
             case_copy["status"] = "skipped"
@@ -600,6 +630,17 @@ def run(args):
         all_reports.append(report)
         case_copy["status"] = report["test_status"]
         cases_with_status.append(case_copy)
+
+        if report.get("conversion_timed_out"):
+            consecutive_timeouts += 1
+            if hang_skip_threshold and consecutive_timeouts >= hang_skip_threshold:
+                skip_rest_for_hang = True
+                logger.error(
+                    f"{consecutive_timeouts} consecutive conversion timeouts - "
+                    "suspected driver hang; skipping the remaining cases in this pack"
+                )
+        else:
+            consecutive_timeouts = 0
 
     write_test_cases_json(group_dir, cases_with_status)
     write_report_compare_json(group_dir, all_reports)

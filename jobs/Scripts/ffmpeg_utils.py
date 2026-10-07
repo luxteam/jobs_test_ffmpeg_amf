@@ -15,6 +15,7 @@ import glob
 import logging
 import os
 import re
+import signal
 import subprocess
 
 import cv2
@@ -101,17 +102,79 @@ def build_conversion_command(ffmpeg_exe, input_video, output_video, case):
 # Conversion
 # ---------------------------------------------------------------------------
 
-def run_conversion(ffmpeg_exe, input_video, output_video, case, log_path):
-    """Run FFMPEG conversion. Returns exit code. Saves stdout+stderr to log_path."""
+# A single conversion must never hang the whole run. If ffmpeg does not finish
+# within this many seconds (e.g. a driver hang / HW-surface deadlock, as seen on
+# the hwaccel pack), its process tree is killed and CONVERSION_TIMEOUT_RC is
+# returned, so the case fails and testing continues. Override via env var.
+try:
+    CONVERSION_TIMEOUT_SEC = int(os.environ.get("FFMPEG_CONVERSION_TIMEOUT", "30"))
+except ValueError:
+    CONVERSION_TIMEOUT_SEC = 30
+
+# Sentinel exit code for a killed/timed-out conversion (124 = the conventional
+# "command timed out" code used by GNU `timeout`). ffmpeg_rules reports it as a
+# hang rather than an ordinary non-zero ffmpeg failure.
+CONVERSION_TIMEOUT_RC = 124
+
+
+def _kill_process_tree(proc):
+    """Kill the conversion process AND its children. With shell=True the direct
+    child is the shell (cmd.exe / sh); the real ffmpeg is a grandchild, so a
+    plain proc.kill() would leave it - and its GPU work - running."""
+    try:
+        if os.name == "nt":
+            # taskkill can itself block while the OS tears down a thread wedged
+            # in the GPU driver, so bound it; the except falls back to proc.kill.
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           timeout=15)
+        else:
+            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+    except Exception as kill_err:
+        logger.warning(f"Process-tree kill failed ({kill_err}); using proc.kill()")
+        try:
+            proc.kill()
+        except Exception:
+            pass
+
+
+def run_conversion(ffmpeg_exe, input_video, output_video, case, log_path,
+                   timeout=CONVERSION_TIMEOUT_SEC):
+    """Run FFMPEG conversion. Returns exit code. Saves stdout+stderr to log_path.
+
+    If ffmpeg does not finish within `timeout` seconds it is force-killed (whole
+    process tree) and CONVERSION_TIMEOUT_RC is returned, so a hung conversion
+    fails that one case instead of stalling the entire build.
+    """
     cmd = build_conversion_command(ffmpeg_exe, input_video, output_video, case)
     logger.info(f"Running conversion: {cmd}")
 
-    with open(log_path, "w", encoding="utf-8") as log_file:
-        result = subprocess.run(cmd, stdout=log_file, stderr=subprocess.STDOUT,
-                                text=True, shell=True)
+    popen_kwargs = {}
+    if os.name != "nt":
+        popen_kwargs["start_new_session"] = True  # own process group for killpg
 
-    logger.info(f"FFMPEG exit code: {result.returncode}")
-    return result.returncode
+    with open(log_path, "w", encoding="utf-8") as log_file:
+        proc = subprocess.Popen(cmd, stdout=log_file, stderr=subprocess.STDOUT,
+                                text=True, shell=True, **popen_kwargs)
+        try:
+            returncode = proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            _kill_process_tree(proc)
+            try:
+                proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                logger.error("ffmpeg did not exit even after kill")
+            msg = (f"FFMPEG conversion timed out after {timeout}s and was killed "
+                   f"(suspected driver hang / HW-surface deadlock)")
+            logger.error(msg)
+            try:
+                log_file.write(f"\n[run_tests] {msg}\n")
+            except Exception:
+                pass
+            return CONVERSION_TIMEOUT_RC
+
+    logger.info(f"FFMPEG exit code: {returncode}")
+    return returncode
 
 
 # ---------------------------------------------------------------------------

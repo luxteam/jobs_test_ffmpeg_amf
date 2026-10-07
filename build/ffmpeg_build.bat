@@ -68,7 +68,15 @@ exit /b 0
     call :make_unix_path %AMF_INCLUDE_DIR%
     set AMF_UNIX_INCLUDE_DIR=^!UNIX_PATH^!
 
-    set FFMPEG_BUILD_ARGS="--enable-amf --enable-libdav1d --extra-cflags=-I%AMF_UNIX_INCLUDE_DIR% --extra-cflags=-I%FFMPEG_UNIX_SRC_DIR% --target-os=win64 --arch=x86_64 --toolchain=msvc --disable-doc --disable-ffplay --enable-ffprobe --prefix=%FFMPEG_INSTALL_DIR%"
+    REM --- Vulkan: enabled only if the Vulkan SDK is present on this node ---
+    set VULKAN_SDK_DIR=%VULKAN_SDK%
+    if "%VULKAN_SDK_DIR%" == "" (set VULKAN_SDK_DIR=C:\VulkanSDK\1.4.309.0)
+    call :make_unix_path %VULKAN_SDK_DIR%\
+    set VULKAN_UNIX_SDK_DIR=^!UNIX_PATH^!
+    set VULKAN_ARGS=
+    if exist "%VULKAN_SDK_DIR%\Include\vulkan\vulkan.h" set VULKAN_ARGS=--enable-vulkan --extra-cflags=-I%VULKAN_UNIX_SDK_DIR%Include --extra-ldflags=-LIBPATH:%VULKAN_UNIX_SDK_DIR%Lib
+
+    set FFMPEG_BUILD_ARGS="--enable-amf %VULKAN_ARGS% --enable-libdav1d --extra-cflags=-I%AMF_UNIX_INCLUDE_DIR% --extra-cflags=-I%FFMPEG_UNIX_SRC_DIR% --target-os=win64 --arch=x86_64 --toolchain=msvc --disable-doc --disable-ffplay --enable-ffprobe --prefix=%FFMPEG_INSTALL_DIR%"
 
     if "%FFMPEG_BUILD_TYPE%" == "debug" (set FFMPEG_BUILD_ARGS=%FFMPEG_BUILD_ARGS% --enable-debug --disable-optimizations)
 
